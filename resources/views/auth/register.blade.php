@@ -77,11 +77,11 @@
 
             <!-- Name -->
             <div>
-                <label for="name" class="block text-sm font-medium text-blue-100 mb-1">Full Name</label>
+                <label for="name" class="block text-sm font-medium text-blue-100 mb-1">Username</label>
                 <div class="relative">
                     <input id="name" type="text" name="name" value="{{ old('name') }}" required autofocus autocomplete="name"
                         class="w-full px-4 py-3 rounded-lg bg-white/80 border border-transparent focus:border-brgy-gold focus:bg-white focus:ring-0 text-gray-900 placeholder-gray-500 transition-all" 
-                        placeholder="Enter your full name">
+                        placeholder="Enter Username">
                 </div>
             </div>
 

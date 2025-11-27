@@ -71,5 +71,21 @@
     <footer>
         &copy; {{ date('Y') }} BrgyHub. All rights reserved.
     </footer>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Display success alert -->
+    @if(session('success'))
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: "{{ session('success') }}",
+            showConfirmButton: false,
+            timer: 1800
+        });
+    </script>
+    @endif
+
 </body>
 </html>

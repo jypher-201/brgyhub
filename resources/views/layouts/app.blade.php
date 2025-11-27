@@ -41,5 +41,29 @@
         @stack('modals')
 
         @livewireScripts
+
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+@if(session('success'))
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: '{{ session("success") }}',
+        width: 400,           // smaller popup
+        padding: '1rem',      // reduced padding
+        timer: 1800,          // slightly shorter display
+        showConfirmButton: false,
+        timerProgressBar: true,
+        customClass: {
+            title: 'text-sm',     // smaller title text
+            content: 'text-xs'    // smaller content text
+        }
+    });
+</script>
+@endif
+
+
     </body>
 </html>

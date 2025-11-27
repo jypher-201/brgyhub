@@ -154,10 +154,11 @@
                         </p>
                     </div>
 
-                    <a href="#"
-                       class="mt-8 w-full text-center gradient-amber text-white font-semibold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-amber-600/50">
-                        Share Idea
-                    </a>
+                    <a href="{{ route('resident.suggestions.create') }}"
+   class="mt-8 w-full text-center gradient-amber text-white font-semibold py-3 px-4 rounded-lg hover:opacity-90 transition-opacity shadow-lg shadow-amber-600/50">
+   Share Idea
+</a>
+
                 </div>
             </div>
 
@@ -221,6 +222,19 @@
     </div>
 
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    @if(session('success'))
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Report Submitted!',
+        text: '{{ session("success") }}',
+        timer: 2000,
+        showConfirmButton: false
+    });
+</script>
+@endif
+
 
 </body>
 </html>

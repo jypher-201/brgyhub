@@ -12,13 +12,13 @@ class SuggestionController extends Controller
     public function index()
     {
         $suggestions = Auth::user()->suggestions()->latest()->paginate(10);
-        return view('suggestions.index', compact('suggestions'));
+        return view('resident.suggestions.index', compact('suggestions'));
     }
 
     // Show form to create a new suggestion
     public function create()
     {
-        return view('suggestions.create');
+        return view('resident.suggestions.create');
     }
 
     // Store a new suggestion

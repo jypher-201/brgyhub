@@ -43,7 +43,8 @@ class IssueReportController extends Controller
 
         IssueReport::create($data);
 
-        return redirect()->route('resident.issues.index')->with('success', 'Report submitted successfully!');
+        return redirect()->route('resident.issues.index')
+                 ->with('success', 'Report submitted successfully!');
 
     }
 

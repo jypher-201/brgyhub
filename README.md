@@ -1,10 +1,3 @@
-<p align="center">
-    <a href="#" target="_blank">
-        <img src="https://img.icons8.com/external-flatart-icons-outline-flatarticons/512/external-community-community-service-flatart-icons-outline-flatarticons.png" 
-             width="180" alt="Project Logo">
-    </a>
-</p>
-
 <h1 align="center">BarangayHub: Resident Issue Reporting & Management System</h1>
 
 <p align="center">

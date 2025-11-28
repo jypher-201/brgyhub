@@ -71,7 +71,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::post('/issues', [IssueReportController::class, 'store'])->name('issues.store');
 
         // Suggestions
-        Route::get('/suggestions', [SuggestionController::class, 'index'])->name('suggestions');
+        Route::get('/suggestions', [SuggestionController::class, 'index'])->name('suggestions.index');
         Route::get('/suggestions/create', [SuggestionController::class, 'create'])->name('suggestions.create');
         Route::post('/suggestions', [SuggestionController::class, 'store'])->name('suggestions.store');
     });

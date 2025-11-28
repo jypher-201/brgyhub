@@ -33,7 +33,7 @@ class SuggestionController extends Controller
             'content' => $request->content,
         ]);
 
-        return redirect()->route('suggestions.index')->with('success', 'Suggestion submitted successfully!');
+        return redirect()->route('resident.suggestions.index')->with('success', 'Suggestion submitted successfully!');
     }
 
     // Optional: Admin view all suggestions

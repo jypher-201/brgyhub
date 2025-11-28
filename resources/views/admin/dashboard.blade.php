@@ -325,8 +325,8 @@
         </div>
         <ul class="nav-links">
             <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
-            <li><a href="#"><i class="fas fa-exclamation-circle"></i> Issue Reports</a></li>
-            <li><a href="#"><i class="fas fa-lightbulb"></i> Suggestions</a></li>
+            <li><a href="{{ route('admin.issues.index') }}"><i class="fas fa-exclamation-circle"></i> Issue Reports</a></li>
+            <li><a href="{{ route('admin.suggestions.index') }}"><i class="fas fa-lightbulb"></i> Suggestions</a></li>
             <li><a href="#"><i class="fas fa-users"></i> User Management</a></li>
             <li>
     <form method="POST" action="{{ route('logout') }}">

@@ -43,39 +43,39 @@
         .form-styled:focus { @apply border-blue-600 ring-4 ring-blue-500/50 outline-none; }
         .file-upload-box:hover { border-color: #3b82f6; }
 
-        /* NEW: Styles for multiple image previews */
+        /* Styles for multiple image previews */
         .preview-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Adjust minmax for desired thumbnail size */
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
             gap: 1rem;
-            padding: 1rem; /* Padding inside the grid container */
+            padding: 1rem; 
             justify-items: center;
         }
 
         .image-preview-item {
             position: relative;
-            width: 100px; /* Fixed width for each thumbnail */
-            height: 100px; /* Fixed height for each thumbnail */
-            border: 1px solid #cbd5e1; /* slate-300 */
+            width: 100px; 
+            height: 100px; 
+            border: 1px solid #cbd5e1; 
             border-radius: 0.5rem;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            background-color: #f1f5f9; /* slate-100 */
+            background-color: #f1f5f9; 
         }
 
         .image-preview-item img {
             width: 100%;
             height: 100%;
-            object-fit: contain; /* Scales down without cropping */
+            object-fit: contain; 
         }
 
         .remove-photo-btn {
             position: absolute;
             top: 2px;
             right: 2px;
-            background-color: rgba(239, 68, 68, 0.8); /* red-500 with transparency */
+            background-color: rgba(239, 68, 68, 0.8); 
             color: white;
             border-radius: 50%;
             width: 24px;
@@ -91,7 +91,7 @@
         }
 
         .remove-photo-btn:hover {
-            background-color: rgba(239, 68, 68, 1); /* solid red on hover */
+            background-color: rgba(239, 68, 68, 1); 
         }
     </style>
 </head>
@@ -112,15 +112,9 @@
             <p class="text-slate-600 text-lg">Please provide details to submit your maintenance or community concern.</p>
         </header>
 
-        {{-- Success/Error Messages --}}
-        @if(session('success'))
-            <div class="mb-6 p-4 bg-green-100 border border-green-300 text-green-800 rounded-xl">
-                {{ session('success') }}
-            </div>
-        @endif
-
+        {{-- Validation Error Messages --}}
         @if ($errors->any())
-            <div class="mb-6 p-4 bg-red-100 border border-red-300 text-red-800 rounded-xl">
+            <div class="mb-6 p-4 bg-red-100 border border-red-300 text-red-800 rounded-xl" id="validation-errors">
                 <ul class="list-disc pl-5">
                     @foreach ($errors->all() as $error)
                         <li>{{ $error }}</li>
@@ -128,6 +122,7 @@
                 </ul>
             </div>
         @endif
+        {{-- The session('success') block is removed as the JS handles the alert now. --}}
 
         <div class="bg-white rounded-2xl shadow-smooth-lg overflow-hidden border border-slate-200">
             <div class="border-b border-slate-200 p-6 bg-gradient-to-r from-blue-50 to-slate-50">
@@ -138,6 +133,7 @@
                 <p class="text-slate-600 mt-1">Fields marked with an asterisk (<span class="text-red-500">*</span>) are required.</p>
             </div>
             
+            {{-- CRITICAL: enctype="multipart/form-data" is correct --}}
             <form action="{{ route('resident.issues.store') }}" method="POST" enctype="multipart/form-data" class="p-8" id="issue-report-form">
                 @csrf
                 
@@ -157,8 +153,8 @@
                         Detailed Description <span class="text-red-500 ml-1">*</span>
                     </label>
                     <textarea name="description" id="description" rows="5" required
-                                  class="w-full form-styled"
-                                  placeholder="Describe the issue, noting its severity, time it started, and exact location.">{{ old('description') }}</textarea>
+                                    class="w-full form-styled"
+                                    placeholder="Describe the issue, noting its severity, time it started, and exact location.">{{ old('description') }}</textarea>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
@@ -168,7 +164,7 @@
                             Issue Category <span class="text-red-500 ml-1">*</span>
                         </label>
                         <select id="category" name="category" required
-                                 class="w-full form-styled appearance-none bg-white">
+                                    class="w-full form-styled appearance-none bg-white">
                             <option value="" disabled {{ old('category') ? '' : 'selected' }}>Select a Category (Required)</option>
                             <option value="streetlight" {{ old('category')=='streetlight' ? 'selected' : '' }}>💡 Streetlight Issue</option>
                             <option value="flooding" {{ old('category')=='flooding' ? 'selected' : '' }}>🌊 Flooding/Drainage</option>
@@ -186,8 +182,8 @@
                             Specific Location <span class="text-red-500 ml-1">*</span>
                         </label>
                         <input type="text" name="location" id="location" required
-                                 class="w-full form-styled"
-                                 placeholder="e.g., Main Street corner Sampaguita St." value="{{ old('location') }}">
+                                    class="w-full form-styled"
+                                    placeholder="e.g., Main Street corner Sampaguita St." value="{{ old('location') }}">
                     </div>
                 </div>
 
@@ -198,18 +194,16 @@
                     </label>
                     <div id="file-upload-box" class="file-upload-box relative border-2 border-blue-300 border-dashed rounded-lg transition-all duration-200 cursor-pointer min-h-[150px]">
                         
-                        {{-- NEW: Container for multiple image previews --}}
                         <div id="image-preview-container" class="preview-grid hidden">
                             {{-- Image previews will be dynamically added here --}}
                         </div>
                         
-                        {{-- Original Upload Content (Toggled by JS) --}}
                         <div id="upload-prompt" class="absolute inset-0 flex flex-col items-center justify-center space-y-1 text-center p-4">
                             <i class="fas fa-cloud-upload-alt text-blue-400 text-4xl"></i>
                             <div class="flex text-sm text-slate-600">
                                 <label for="photo-upload" class="relative cursor-pointer bg-slate-50 rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
                                     <span>Click to upload photo(s)</span>
-                                    {{-- UPDATED: Added 'multiple' attribute and changed name to an array --}}
+                                    {{-- CRITICAL: name="photos[]" for multiple files --}}
                                     <input id="photo-upload" name="photos[]" type="file" class="sr-only" multiple accept="image/*" onchange="previewImages(event)">
                                 </label>
                                 <p class="pl-1 text-slate-400">or drag and drop here</p>
@@ -221,7 +215,7 @@
 
                 <div class="mt-8">
                     <button type="submit"
-                                 class="w-full text-center gradient-submit text-white font-bold text-lg py-4 px-4 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-blue-600/50 flex items-center justify-center tracking-wider">
+                                    class="w-full text-center gradient-submit text-white font-bold text-lg py-4 px-4 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-blue-600/50 flex items-center justify-center tracking-wider">
                         <i class="fas fa-paper-plane mr-3"></i>
                         SUBMIT OFFICIAL REPORT
                     </button>
@@ -284,16 +278,38 @@
         // Function to add new files and trigger rendering
         function previewImages(event) {
             const newFiles = Array.from(event.target.files);
-            uploadedFiles = uploadedFiles.concat(newFiles); // Add new files to the array
+            
+            // Basic size/type validation here can prevent unnecessary large file uploads
+            const validFiles = newFiles.filter(file => {
+                if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                    Swal.fire('File Too Large', `${file.name} is over the 5MB limit and was skipped.`, 'warning');
+                    return false;
+                }
+                if (!file.type.match('image/(jpeg|jpg|png)')) {
+                    Swal.fire('Invalid File Type', `${file.name} is not a valid image type (JPG, PNG).`, 'warning');
+                    return false;
+                }
+                return true;
+            });
+            
+            uploadedFiles = uploadedFiles.concat(validFiles); 
             renderPreviews();
             event.target.value = ''; // Clear the input so same file can be selected again
         }
 
         // Function to remove a single file
         function removeFile(indexToRemove) {
-            uploadedFiles.splice(indexToRemove, 1); // Remove file from the array
+            uploadedFiles.splice(indexToRemove, 1); 
             // Re-render previews to update indices and display
             renderPreviews();
+        }
+        
+        // Function to clear errors on the page
+        function clearErrors() {
+            const errorDiv = document.getElementById('validation-errors');
+            if(errorDiv) {
+                errorDiv.remove();
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -303,7 +319,6 @@
 
             // Handle clicks on the file upload box to open file input
             fileUploadBox.addEventListener('click', function(e) { 
-                // Only trigger file input if not clicking a remove button or the preview itself
                 if (!e.target.closest('.remove-photo-btn') && !e.target.closest('.image-preview-item')) {
                     fileInput.click(); 
                 }
@@ -338,34 +353,106 @@
                 }
             });
 
-            // Handle form submission to include all uploadedFiles
-            document.getElementById('issue-report-form').addEventListener('submit', function(e) {
-                // We need to manually append the files to the FormData object
-                // because the fileInput.files property can't be directly manipulated
-                const formData = new FormData(this); // 'this' refers to the form
+            // 🛑 CRITICAL FIX: Handle form submission using fetch/AJAX
+            document.getElementById('issue-report-form').addEventListener('submit', async function(e) {
+                e.preventDefault(); 
 
-                // Remove existing photos[] entry created by input (if any)
-                formData.delete('photos[]'); 
+                const form = this;
+                const formData = new FormData(form);
+                
+                // Clear any previous validation errors displayed
+                clearErrors(); 
 
-                uploadedFiles.forEach((file, index) => {
+                // Manually append the files from the uploadedFiles array
+                uploadedFiles.forEach((file) => {
                     formData.append('photos[]', file, file.name);
                 });
+
+                // Show loading state/disable button
+                const submitButton = form.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-3"></i> Submitting...';
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: form.method,
+                        body: formData, 
+                    });
+
+                    // Check for successful JSON response (Status 200)
+                    if (response.ok) {
+                        const data = await response.json(); 
+
+                        if (data.success) {
+                            // 1. Show SweetAlert success message
+                            await Swal.fire({
+                                title: 'Success! 🎉',
+                                text: data.message,
+                                icon: 'success',
+                                confirmButtonColor: '#2563eb', // blue
+                                timer: 2000,
+                                timerProgressBar: true
+                            });
+
+                            // 2. Redirect the user after the alert
+                            window.location.href = data.redirect_url; 
+                            return; 
+                        }
+                    } 
+                    
+                    // Handle Validation error (Status 422)
+                    if (response.status === 422) {
+                        const errorData = await response.json();
+                        
+                        let errorHtml = '<ul class="list-disc pl-5">';
+                        
+                        if (errorData.errors) {
+                            for (const key in errorData.errors) {
+                                const errorMessage = errorData.errors[key].join('<br>');
+                                const cleanKey = key.replace(/\.[\d]+/, ''); 
+                                
+                                const displayKey = cleanKey.charAt(0).toUpperCase() + cleanKey.slice(1);
+
+                                if (cleanKey === 'photos') {
+                                    errorHtml += `<li>**Attached Image Error:** ${errorMessage}</li>`;
+                                } else {
+                                    errorHtml += `<li>**${displayKey}:** ${errorMessage}</li>`;
+                                }
+                            }
+                        }
+                        errorHtml += '</ul>';
+
+                        Swal.fire({
+                            title: 'Validation Failed',
+                            html: errorHtml,
+                            icon: 'error',
+                            confirmButtonColor: '#ef4444' 
+                        });
+                        
+                    } else if (response.status !== 422) {
+                        // General server error
+                        throw new Error(`Server responded with status: ${response.status}`);
+                    }
+
+                } catch (error) {
+                    console.error('Submission Error:', error);
+                    Swal.fire({
+                        title: 'Submission Error',
+                        text: 'An unexpected network error occurred. Please check your connection and try again.',
+                        icon: 'error',
+                        confirmButtonColor: '#ef4444'
+                    });
+                } finally {
+                    // Re-enable button
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                }
             });
 
         });
     </script>
-    @if(session('success'))
-<script>
-    Swal.fire({
-        title: 'Success!',
-        text: '{{ session('success') }}',
-        icon: 'success',
-        confirmButtonColor: '#2563eb', // blue
-        timer: 2500,
-        timerProgressBar: true
-    });
-</script>
-@endif
+    {{-- Session success message removed here --}}
 
 </body>
 </html>

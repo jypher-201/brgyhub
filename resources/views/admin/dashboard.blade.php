@@ -300,20 +300,20 @@
         }
 
         .sidebar form button {
-    background: none;
-    border: none;
-    color: white;
-    width: 100%;
-    text-align: left;
-    padding: 12px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-}
+            background: none;
+            border: none;
+            color: white;
+            width: 100%;
+            text-align: left;
+            padding: 12px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
 
-.sidebar form button:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--light-yellow);
-}
+        .sidebar form button:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--light-yellow);
+        }
 
     </style>
 </head>
@@ -343,46 +343,46 @@
     <div class="main-content">
         <div class="header">
             <h2>Dashboard Overview</h2>
-            <div class="user-info">
-                <img src="#" alt="Admin Avatar">
-                <span>Barangay Admin</span>
-            </div>
         </div>
 
         <div class="stats-container">
-            <div class="stat-card">
-                <div class="stat-card-header">
-                    <h3>Total Reports</h3>
-                    <i class="fas fa-file-alt"></i>
-                </div>
-                <div class="stat-card-value">142</div>
-                <div class="stat-card-desc">+12 from last week</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-card-header">
-                    <h3>Pending Reports</h3>
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div class="stat-card-value">24</div>
-                <div class="stat-card-desc">Require attention</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-card-header">
-                    <h3>Resolved Issues</h3>
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <div class="stat-card-value">98</div>
-                <div class="stat-card-desc">+5 this week</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-card-header">
-                    <h3>User Suggestions</h3>
-                    <i class="fas fa-lightbulb"></i>
-                </div>
-                <div class="stat-card-value">36</div>
-                <div class="stat-card-desc">New ideas for improvement</div>
-            </div>
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <h3>Total Reports</h3>
+            <i class="fas fa-file-alt"></i>
         </div>
+        {{-- Updated: Use the count of all reports --}}
+        <div class="stat-card-value">{{ $totalReportsCount ?? 0 }}</div> 
+        <div class="stat-card-desc">+12 from last week</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <h3>Pending Reports</h3>
+            <i class="fas fa-clock"></i>
+        </div>
+        {{-- Updated: Use the count of pending reports --}}
+        <div class="stat-card-value">{{ $pendingReportsCount ?? 0 }}</div>
+        <div class="stat-card-desc">Require attention</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <h3>Resolved Issues</h3>
+            <i class="fas fa-check-circle"></i>
+        </div>
+        {{-- Updated: Use the count of resolved reports --}}
+        <div class="stat-card-value">{{ $resolvedReportsCount ?? 0 }}</div>
+        <div class="stat-card-desc">+5 this week</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <h3>User Suggestions</h3>
+            <i class="fas fa-lightbulb"></i>
+        </div>
+        {{-- Updated: Use the count of all suggestions --}}
+        <div class="stat-card-value">{{ $totalSuggestionsCount ?? 0 }}</div>
+        <div class="stat-card-desc">New ideas for improvement</div>
+    </div>
+</div>
 
         <div class="table-container">
             <div class="table-header">
@@ -404,7 +404,7 @@
                     <input type="text" placeholder="Search..." id="reportSearch">
                 </div>
             </div>
-            <table>
+            <table id="reportsTable">
                 <thead>
                     <tr>
                         <th>Report ID</th>
@@ -450,82 +450,92 @@
         </div>
 
         <div class="table-container">
-            <div class="table-header">
-                <h3>Recent Suggestions</h3>
-                <div class="filter-options">
-                    <select id="suggestionStatusFilter">
-                        <option value="">All Status</option>
-                        <option value="Pending">Pending</option>
-                        <option value="Reviewed">Reviewed</option>
-                        <option value="Responded">Responded</option>
-                    </select>
-                    <input type="text" placeholder="Search suggestions..." id="suggestionSearch">
-                </div>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Suggestion ID</th>
-                        <th>Content</th>
-                        <th>Submitted By</th>
-                        <th>Date</th>
-                        <th>Response Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>#SG-2023-021</td>
-                        <td>Install more benches in the park</td>
-                        <td>Ana Torres</td>
-                        <td>Oct 11, 2023</td>
-                        <td><span class="status pending">Pending</span></td>
-                        <td><button class="action-btn">Respond</button></td>
-                    </tr>
-                    <tr>
-                        <td>#SG-2023-020</td>
-                        <td>Weekly community clean-up drive</td>
-                        <td>Luis Mendoza</td>
-                        <td>Oct 9, 2023</td>
-                        <td><span class="status reviewed">Reviewed</span></td>
-                        <td><button class="action-btn">Respond</button></td>
-                    </tr>
-                    <tr>
-                        <td>#SG-2023-019</td>
-                        <td>Extend barangay hall operating hours</td>
-                        <td>Sofia Ramirez</td>
-                        <td>Oct 6, 2023</td>
-                        <td><span class="status responded">Responded</span></td>
-                        <td><button class="action-btn">View</button></td>
-                    </tr>
-                </tbody>
-            </table>
+    <div class="table-header">
+        <h3>Recent Suggestions</h3>
+        <div class="filter-options">
+            <select id="suggestionStatusFilter">
+                <option value="">All Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Reviewed">Reviewed</option>
+                <option value="Responded">Responded</option>
+            </select>
+            <input type="text" placeholder="Search suggestions..." id="suggestionSearch">
         </div>
+    </div>
+    <table id="suggestionsTable">
+        <thead>
+            <tr>
+                <th>Suggestion ID</th>
+                <th>Content</th>
+                <th>Submitted By</th>
+                <th>Date</th>
+                <th>Response Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody id="suggestionTableBody">
+            {{-- START: Dynamic Suggestion Data Loop --}}
+            @forelse ($suggestions as $suggestion)
+            <tr>
+                {{-- Ensure your Suggestion model has an 'id' column --}}
+                <td>#SG-{{ $suggestion->id }}</td>
+                
+                {{-- Show the actual suggestion content, limited to 50 characters for clean display --}}
+                <td>{{ Str::limit($suggestion->content ?? 'No content provided', 50) }}</td>
+                
+                {{-- Assumes the Suggestion model has a 'user' relationship --}}
+                <td>{{ $suggestion->user->name ?? 'Resident' }}</td> 
+                
+                {{-- Format the submission date --}}
+                <td>{{ $suggestion->created_at->format('M d, Y') }}</td>
+                
+                <td>
+                    {{-- Status classes ensure correct color coding --}}
+                    <span class="status 
+                        {{ $suggestion->status == 'Pending' ? 'pending' : '' }}
+                        {{ $suggestion->status == 'Reviewed' ? 'reviewed' : '' }}
+                        {{ $suggestion->status == 'Responded' ? 'responded' : '' }}">
+                        {{ $suggestion->status }}
+                    </span>
+                </td>
+                <td><button class="action-btn">View/Respond</button></td>
+            </tr>
+            @empty
+                <tr>
+                    <td colspan="6" class="text-center">No suggestions submitted yet.</td>
+                </tr>
+            @endforelse
+            {{-- END: Dynamic Suggestion Data Loop --}}
+        </tbody>
+    </table>
+</div>
     </div>
 
     <script>
 document.addEventListener("DOMContentLoaded", () => {
 
-    const categoryFilter = document.getElementById("reportCategoryFilter");
-    const statusFilter = document.getElementById("reportStatusFilter");
-    const searchInput = document.getElementById("reportSearch");
-    const rows = document.querySelectorAll("tbody tr");
+    // --- ISSUE REPORTS FILTER/SEARCH LOGIC ---
+
+    const reportCategoryFilter = document.getElementById("reportCategoryFilter");
+    const reportStatusFilter = document.getElementById("reportStatusFilter");
+    const reportSearchInput = document.getElementById("reportSearch");
+    const reportRows = document.querySelectorAll("#reportsTable tbody tr");
 
     function filterReports() {
-        const category = categoryFilter.value.toLowerCase();
-        const status = statusFilter.value.toLowerCase();
-        const search = searchInput.value.toLowerCase();
+        const category = reportCategoryFilter.value.toLowerCase();
+        const status = reportStatusFilter.value.toLowerCase();
+        const search = reportSearchInput.value.toLowerCase();
 
-        rows.forEach(row => {
-            // Skip placeholder rows (which have static IDs)
-            const isPlaceholder = row.querySelector("td")?.innerText.includes("#BR-2023");
-            // If you want to keep filtering placeholders, remove this:
-            // if (isPlaceholder) return;
-
+        reportRows.forEach(row => {
+            // Note: I've removed the isPlaceholder check for simplicity, 
+            // assuming your Blade loop is what generates the report data.
+            
+            // Indices: Title (1), Category (2), Submitted By (3), Status (5)
             const rowCategory = row.children[2].innerText.toLowerCase();
             const rowUser = row.children[3].innerText.toLowerCase();
             const rowTitle = row.children[1].innerText.toLowerCase();
-            const rowStatus = row.children[5].innerText.toLowerCase();
+            // We use row.children[5] to get the <td> for Status
+            const rowStatus = row.children[5].querySelector('.status').innerText.toLowerCase();
 
             let match = true;
 
@@ -539,24 +549,80 @@ document.addEventListener("DOMContentLoaded", () => {
                 match = false;
             }
 
-            // Search filter (title, user, category)
-            if (search &&
-                !rowTitle.includes(search) &&
-                !rowUser.includes(search) &&
-                !rowCategory.includes(search)
-            ) {
-                match = false;
+            // Search filter (title, user, category, or status ID/Date/Action is also searchable)
+            if (search) {
+                let rowText = '';
+                // Combine text from all cells except the last (Actions) for searching
+                for (let i = 0; i < row.children.length - 1; i++) {
+                    rowText += row.children[i].innerText.toLowerCase() + ' ';
+                }
+
+                if (!rowText.includes(search)) {
+                    match = false;
+                }
             }
 
             row.style.display = match ? "" : "none";
         });
     }
 
-    // Trigger filter on changes
-    categoryFilter.addEventListener("change", filterReports);
-    statusFilter.addEventListener("change", filterReports);
-    searchInput.addEventListener("keyup", filterReports);
+    // Trigger filter on changes for Reports
+    reportCategoryFilter.addEventListener("change", filterReports);
+    reportStatusFilter.addEventListener("change", filterReports);
+    reportSearchInput.addEventListener("keyup", filterReports);
+
+
+    // --- SUGGESTIONS FILTER/SEARCH LOGIC (NEW) ---
+
+    const suggestionStatusFilter = document.getElementById("suggestionStatusFilter");
+    const suggestionSearchInput = document.getElementById("suggestionSearch");
+    const suggestionRows = document.querySelectorAll("#suggestionsTable tbody tr");
+
+    function filterSuggestions() {
+        const status = suggestionStatusFilter.value.toLowerCase();
+        const search = suggestionSearchInput.value.toLowerCase();
+
+        suggestionRows.forEach(row => {
+            // Indices for Suggestions: Content (1), Submitted By (2), Response Status (4)
+            const rowContent = row.children[1].innerText.toLowerCase();
+            const rowUser = row.children[2].innerText.toLowerCase();
+            // We use row.children[4] to get the <td> for Status
+            const rowStatus = row.children[4].querySelector('.status').innerText.toLowerCase();
+
+            let match = true;
+
+            // Filter by status
+            if (status && rowStatus !== status) {
+                match = false;
+            }
+
+            // Search filter (ID, Content, Submitted By, Date)
+            if (search) {
+                let rowText = '';
+                // Combine text from all cells except the last (Actions) for searching
+                for (let i = 0; i < row.children.length - 1; i++) {
+                    rowText += row.children[i].innerText.toLowerCase() + ' ';
+                }
+
+                if (!rowText.includes(search)) {
+                    match = false;
+                }
+            }
+
+            row.style.display = match ? "" : "none";
+        });
+    }
+
+    // Trigger filter on changes for Suggestions
+    suggestionStatusFilter.addEventListener("change", filterSuggestions);
+    suggestionSearchInput.addEventListener("keyup", filterSuggestions);
 });
+
+function openReport(reportId) {
+    // Placeholder function for the 'View' button on Issue Reports
+    console.log('Viewing report ID:', reportId);
+    alert('Viewing report ID: ' + reportId);
+}
 </script>
 
 </body>

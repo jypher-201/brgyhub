@@ -42,6 +42,57 @@
         .form-styled { border-width: 3px; @apply border-gold-500 rounded-xl shadow-sm p-4 transition duration-200; }
         .form-styled:focus { @apply border-blue-600 ring-4 ring-blue-500/50 outline-none; }
         .file-upload-box:hover { border-color: #3b82f6; }
+
+        /* NEW: Styles for multiple image previews */
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* Adjust minmax for desired thumbnail size */
+            gap: 1rem;
+            padding: 1rem; /* Padding inside the grid container */
+            justify-items: center;
+        }
+
+        .image-preview-item {
+            position: relative;
+            width: 100px; /* Fixed width for each thumbnail */
+            height: 100px; /* Fixed height for each thumbnail */
+            border: 1px solid #cbd5e1; /* slate-300 */
+            border-radius: 0.5rem;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f1f5f9; /* slate-100 */
+        }
+
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain; /* Scales down without cropping */
+        }
+
+        .remove-photo-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background-color: rgba(239, 68, 68, 0.8); /* red-500 with transparency */
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            cursor: pointer;
+            border: none;
+            z-index: 10;
+            transition: background-color 0.2s;
+        }
+
+        .remove-photo-btn:hover {
+            background-color: rgba(239, 68, 68, 1); /* solid red on hover */
+        }
     </style>
 </head>
 
@@ -87,7 +138,7 @@
                 <p class="text-slate-600 mt-1">Fields marked with an asterisk (<span class="text-red-500">*</span>) are required.</p>
             </div>
             
-            <form action="{{ route('resident.issues.store') }}" method="POST" enctype="multipart/form-data" class="p-8">
+            <form action="{{ route('resident.issues.store') }}" method="POST" enctype="multipart/form-data" class="p-8" id="issue-report-form">
                 @csrf
                 
                 <div class="mb-8">
@@ -96,8 +147,8 @@
                         Issue Title <span class="text-red-500 ml-1">*</span>
                     </label>
                     <input type="text" name="title" id="title" required
-                           class="w-full form-styled"
-                           placeholder="A brief, clear summary of the problem (e.g., Broken Streetlight)" value="{{ old('title') }}">
+                            class="w-full form-styled"
+                            placeholder="A brief, clear summary of the problem (e.g., Broken Streetlight)" value="{{ old('title') }}">
                 </div>
 
                 <div class="mb-8">
@@ -106,8 +157,8 @@
                         Detailed Description <span class="text-red-500 ml-1">*</span>
                     </label>
                     <textarea name="description" id="description" rows="5" required
-                              class="w-full form-styled"
-                              placeholder="Describe the issue, noting its severity, time it started, and exact location.">{{ old('description') }}</textarea>
+                                  class="w-full form-styled"
+                                  placeholder="Describe the issue, noting its severity, time it started, and exact location.">{{ old('description') }}</textarea>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
@@ -117,7 +168,7 @@
                             Issue Category <span class="text-red-500 ml-1">*</span>
                         </label>
                         <select id="category" name="category" required
-                                class="w-full form-styled appearance-none bg-white">
+                                 class="w-full form-styled appearance-none bg-white">
                             <option value="" disabled {{ old('category') ? '' : 'selected' }}>Select a Category (Required)</option>
                             <option value="streetlight" {{ old('category')=='streetlight' ? 'selected' : '' }}>💡 Streetlight Issue</option>
                             <option value="flooding" {{ old('category')=='flooding' ? 'selected' : '' }}>🌊 Flooding/Drainage</option>
@@ -135,23 +186,31 @@
                             Specific Location <span class="text-red-500 ml-1">*</span>
                         </label>
                         <input type="text" name="location" id="location" required
-                               class="w-full form-styled"
-                               placeholder="e.g., Main Street corner Sampaguita St." value="{{ old('location') }}">
+                                 class="w-full form-styled"
+                                 placeholder="e.g., Main Street corner Sampaguita St." value="{{ old('location') }}">
                     </div>
                 </div>
 
                 <div class="mb-10 p-6 bg-slate-50 rounded-xl border border-slate-200">
-                    <label for="photo" class="block text-lg font-semibold text-slate-800 mb-4 flex items-center">
+                    <label for="photo-upload" class="block text-lg font-semibold text-slate-800 mb-4 flex items-center">
                         <i class="fas fa-camera text-gold-500 mr-2"></i>
-                        Upload Photo (Optional)
+                        Upload Photo(s) (Optional)
                     </label>
-                    <div class="file-upload-box flex justify-center px-6 pt-5 pb-6 border-2 border-blue-300 border-dashed rounded-lg transition-all duration-200 cursor-pointer">
-                        <div class="space-y-1 text-center">
+                    <div id="file-upload-box" class="file-upload-box relative border-2 border-blue-300 border-dashed rounded-lg transition-all duration-200 cursor-pointer min-h-[150px]">
+                        
+                        {{-- NEW: Container for multiple image previews --}}
+                        <div id="image-preview-container" class="preview-grid hidden">
+                            {{-- Image previews will be dynamically added here --}}
+                        </div>
+                        
+                        {{-- Original Upload Content (Toggled by JS) --}}
+                        <div id="upload-prompt" class="absolute inset-0 flex flex-col items-center justify-center space-y-1 text-center p-4">
                             <i class="fas fa-cloud-upload-alt text-blue-400 text-4xl"></i>
                             <div class="flex text-sm text-slate-600">
                                 <label for="photo-upload" class="relative cursor-pointer bg-slate-50 rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
                                     <span>Click to upload photo(s)</span>
-                                    <input id="photo-upload" name="photo" type="file" class="sr-only" multiple accept="image/*">
+                                    {{-- UPDATED: Added 'multiple' attribute and changed name to an array --}}
+                                    <input id="photo-upload" name="photos[]" type="file" class="sr-only" multiple accept="image/*" onchange="previewImages(event)">
                                 </label>
                                 <p class="pl-1 text-slate-400">or drag and drop here</p>
                             </div>
@@ -162,7 +221,7 @@
 
                 <div class="mt-8">
                     <button type="submit"
-                            class="w-full text-center gradient-submit text-white font-bold text-lg py-4 px-4 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-blue-600/50 flex items-center justify-center tracking-wider">
+                                 class="w-full text-center gradient-submit text-white font-bold text-lg py-4 px-4 rounded-xl hover:opacity-90 transition-opacity shadow-lg shadow-blue-600/50 flex items-center justify-center tracking-wider">
                         <i class="fas fa-paper-plane mr-3"></i>
                         SUBMIT OFFICIAL REPORT
                     </button>
@@ -187,18 +246,112 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <script>
+        // Global array to store files for submission
+        let uploadedFiles = [];
+
+        // Function to render all currently uploaded files
+        function renderPreviews() {
+            const previewContainer = document.getElementById('image-preview-container');
+            const uploadPrompt = document.getElementById('upload-prompt');
+            previewContainer.innerHTML = ''; // Clear existing previews
+
+            if (uploadedFiles.length > 0) {
+                uploadedFiles.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const previewItem = document.createElement('div');
+                        previewItem.classList.add('image-preview-item');
+                        previewItem.setAttribute('data-index', index); // Use a data attribute to link to file
+
+                        previewItem.innerHTML = `
+                            <img src="${e.target.result}" alt="Photo Preview">
+                            <button type="button" class="remove-photo-btn" data-index="${index}" title="Remove Photo">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        previewContainer.appendChild(previewItem);
+                    };
+                    reader.readAsDataURL(file);
+                });
+                previewContainer.classList.remove('hidden');
+                uploadPrompt.classList.add('hidden');
+            } else {
+                previewContainer.classList.add('hidden');
+                uploadPrompt.classList.remove('hidden');
+            }
+        }
+
+        // Function to add new files and trigger rendering
+        function previewImages(event) {
+            const newFiles = Array.from(event.target.files);
+            uploadedFiles = uploadedFiles.concat(newFiles); // Add new files to the array
+            renderPreviews();
+            event.target.value = ''; // Clear the input so same file can be selected again
+        }
+
+        // Function to remove a single file
+        function removeFile(indexToRemove) {
+            uploadedFiles.splice(indexToRemove, 1); // Remove file from the array
+            // Re-render previews to update indices and display
+            renderPreviews();
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
-            const fileUploadBox = document.querySelector('.file-upload-box');
+            const fileUploadBox = document.getElementById('file-upload-box');
             const fileInput = document.getElementById('photo-upload');
+            const previewContainer = document.getElementById('image-preview-container');
+
+            // Handle clicks on the file upload box to open file input
+            fileUploadBox.addEventListener('click', function(e) { 
+                // Only trigger file input if not clicking a remove button or the preview itself
+                if (!e.target.closest('.remove-photo-btn') && !e.target.closest('.image-preview-item')) {
+                    fileInput.click(); 
+                }
+            });
+
+            // Handle remove button clicks (event delegation)
+            previewContainer.addEventListener('click', function(e) {
+                if (e.target.closest('.remove-photo-btn')) {
+                    const button = e.target.closest('.remove-photo-btn');
+                    const index = parseInt(button.dataset.index);
+                    removeFile(index);
+                }
+            });
             
-            fileUploadBox.addEventListener('click', function() { fileInput.click(); });
-            fileUploadBox.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('border-blue-500','bg-blue-100/50'); });
-            fileUploadBox.addEventListener('dragleave', function() { this.classList.remove('border-blue-500','bg-blue-100/50'); });
+            // Drag and drop functionality
+            fileUploadBox.addEventListener('dragover', function(e) { 
+                e.preventDefault(); 
+                this.classList.add('border-blue-500','bg-blue-100/50'); 
+            });
+            
+            fileUploadBox.addEventListener('dragleave', function() { 
+                this.classList.remove('border-blue-500','bg-blue-100/50'); 
+            });
+            
             fileUploadBox.addEventListener('drop', function(e) {
                 e.preventDefault();
                 this.classList.remove('border-blue-500','bg-blue-100/50');
-                if(e.dataTransfer.files.length) fileInput.files = e.dataTransfer.files;
+                
+                if(e.dataTransfer.files.length) {
+                    uploadedFiles = uploadedFiles.concat(Array.from(e.dataTransfer.files));
+                    renderPreviews();
+                }
             });
+
+            // Handle form submission to include all uploadedFiles
+            document.getElementById('issue-report-form').addEventListener('submit', function(e) {
+                // We need to manually append the files to the FormData object
+                // because the fileInput.files property can't be directly manipulated
+                const formData = new FormData(this); // 'this' refers to the form
+
+                // Remove existing photos[] entry created by input (if any)
+                formData.delete('photos[]'); 
+
+                uploadedFiles.forEach((file, index) => {
+                    formData.append('photos[]', file, file.name);
+                });
+            });
+
         });
     </script>
     @if(session('success'))
@@ -218,4 +371,3 @@
 </html>
 
 @endsection
-

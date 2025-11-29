@@ -61,21 +61,25 @@ Route::prefix('admin')->middleware([RoleMiddleware::class . ':admin'])->name('ad
 });
 
 
-    // -------------------------------
-    // Resident routes
+    /// Resident routes
     Route::prefix('resident')->middleware([RoleMiddleware::class . ':resident'])->name('resident.')->group(function () {
 
-        Route::get('/dashboard', [ResidentController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [ResidentController::class, 'index'])->name('dashboard');
 
-        // Issue Reports
-        Route::get('/issues', [IssueReportController::class, 'index'])->name('issues.index');
-        Route::get('/issues/create', [IssueReportController::class, 'create'])->name('issues.create');
-        Route::post('/issues', [IssueReportController::class, 'store'])->name('issues.store');
+    // Issue Reports
+    Route::get('/issues', [IssueReportController::class, 'index'])->name('issues.index');
+    Route::get('/issues/create', [IssueReportController::class, 'create'])->name('issues.create');
+    Route::post('/issues', [IssueReportController::class, 'store'])->name('issues.store');
 
-        // Suggestions
-        Route::get('/suggestions', [SuggestionController::class, 'index'])->name('suggestions.index');
-        Route::get('/suggestions/create', [SuggestionController::class, 'create'])->name('suggestions.create');
-        Route::post('/suggestions', [SuggestionController::class, 'store'])->name('suggestions.store');
-    });
+    // Suggestions
+    Route::get('/suggestions', [SuggestionController::class, 'index'])->name('suggestions.index');
+    Route::get('/suggestions/create', [SuggestionController::class, 'create'])->name('suggestions.create');
+    Route::post('/suggestions', [SuggestionController::class, 'store'])->name('suggestions.store');
+
+    // Notification routes
+    Route::get('/notifications', [ResidentController::class, 'notifications'])->name('notifications.index');
+    Route::post('/notifications/{id}/mark-read', [ResidentController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/mark-all-read', [ResidentController::class, 'markAllAsRead'])->name('notifications.readAll');
+});
 
 });

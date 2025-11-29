@@ -9,11 +9,17 @@ use Illuminate\Support\Facades\Auth;
 class IssueReportController extends Controller
 {
     // Show all reports of logged-in user
-    public function index()
-    {
-        $reports = Auth::user()->reports()->latest()->paginate(10);
-        return view('resident.issues.index', compact('reports'));
+    public function index(Request $request)
+{
+    $reports = Auth::user()->reports()->latest()->paginate(10);
+    
+    // Check if redirected after successful submission
+    if ($request->query('success') == '1') {
+        session()->flash('success', 'Issue report submitted successfully!');
     }
+    
+    return view('resident.issues.index', compact('reports'));
+}
 
     // Show form to create a new report
     public function create()
@@ -25,8 +31,6 @@ class IssueReportController extends Controller
     // IssueReportController.php (Updated store method)
 public function store(Request $request)
 {
-    // ... (Validation and Data preparation remain the same) ...
-
     $request->validate([
         'title' => 'required|string|max:255',
         'description' => 'required|string',
@@ -49,12 +53,11 @@ public function store(Request $request)
 
     IssueReport::create($data);
 
-    // CRITICAL CHANGE: Return a JSON response for AJAX success
+    // Just return redirect URL without showing SweetAlert
     return response()->json([
         'success' => true,
-        'message' => 'Report submitted successfully!', // Message for SweetAlert
-        'redirect_url' => route('resident.issues.index') // URL for JS redirect
-    ], 200); // Return 200 OK status
+        'redirect_url' => route('resident.issues.index') . '?success=1'
+    ], 200);
 }
 
 

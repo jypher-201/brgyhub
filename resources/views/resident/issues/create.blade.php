@@ -16,7 +16,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-
     <script>
         tailwind.config = {
             theme: {
@@ -43,7 +42,6 @@
         .form-styled:focus { @apply border-blue-600 ring-4 ring-blue-500/50 outline-none; }
         .file-upload-box:hover { border-color: #3b82f6; }
 
-        /* Styles for multiple image previews */
         .preview-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); 
@@ -93,6 +91,19 @@
         .remove-photo-btn:hover {
             background-color: rgba(239, 68, 68, 1); 
         }
+
+        /* Compact SweetAlert Styles */
+        .swal-compact {
+            font-size: 0.9rem;
+        }
+        .swal-title-compact {
+            font-size: 1.25rem !important;
+            padding: 0.5rem 0 !important;
+        }
+        .swal-text-compact {
+            font-size: 0.875rem !important;
+            margin: 0.5rem 0 !important;
+        }
     </style>
 </head>
 
@@ -112,7 +123,6 @@
             <p class="text-slate-600 text-lg">Please provide details to submit your maintenance or community concern.</p>
         </header>
 
-        {{-- Validation Error Messages --}}
         @if ($errors->any())
             <div class="mb-6 p-4 bg-red-100 border border-red-300 text-red-800 rounded-xl" id="validation-errors">
                 <ul class="list-disc pl-5">
@@ -122,7 +132,6 @@
                 </ul>
             </div>
         @endif
-        {{-- The session('success') block is removed as the JS handles the alert now. --}}
 
         <div class="bg-white rounded-2xl shadow-smooth-lg overflow-hidden border border-slate-200">
             <div class="border-b border-slate-200 p-6 bg-gradient-to-r from-blue-50 to-slate-50">
@@ -133,7 +142,6 @@
                 <p class="text-slate-600 mt-1">Fields marked with an asterisk (<span class="text-red-500">*</span>) are required.</p>
             </div>
             
-            {{-- CRITICAL: enctype="multipart/form-data" is correct --}}
             <form action="{{ route('resident.issues.store') }}" method="POST" enctype="multipart/form-data" class="p-8" id="issue-report-form">
                 @csrf
                 
@@ -195,7 +203,6 @@
                     <div id="file-upload-box" class="file-upload-box relative border-2 border-blue-300 border-dashed rounded-lg transition-all duration-200 cursor-pointer min-h-[150px]">
                         
                         <div id="image-preview-container" class="preview-grid hidden">
-                            {{-- Image previews will be dynamically added here --}}
                         </div>
                         
                         <div id="upload-prompt" class="absolute inset-0 flex flex-col items-center justify-center space-y-1 text-center p-4">
@@ -203,7 +210,6 @@
                             <div class="flex text-sm text-slate-600">
                                 <label for="photo-upload" class="relative cursor-pointer bg-slate-50 rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
                                     <span>Click to upload photo(s)</span>
-                                    {{-- CRITICAL: name="photos[]" for multiple files --}}
                                     <input id="photo-upload" name="photos[]" type="file" class="sr-only" multiple accept="image/*" onchange="previewImages(event)">
                                 </label>
                                 <p class="pl-1 text-slate-400">or drag and drop here</p>
@@ -240,14 +246,12 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <script>
-        // Global array to store files for submission
         let uploadedFiles = [];
 
-        // Function to render all currently uploaded files
         function renderPreviews() {
             const previewContainer = document.getElementById('image-preview-container');
             const uploadPrompt = document.getElementById('upload-prompt');
-            previewContainer.innerHTML = ''; // Clear existing previews
+            previewContainer.innerHTML = '';
 
             if (uploadedFiles.length > 0) {
                 uploadedFiles.forEach((file, index) => {
@@ -255,7 +259,7 @@
                     reader.onload = function(e) {
                         const previewItem = document.createElement('div');
                         previewItem.classList.add('image-preview-item');
-                        previewItem.setAttribute('data-index', index); // Use a data attribute to link to file
+                        previewItem.setAttribute('data-index', index);
 
                         previewItem.innerHTML = `
                             <img src="${e.target.result}" alt="Photo Preview">
@@ -275,18 +279,38 @@
             }
         }
 
-        // Function to add new files and trigger rendering
         function previewImages(event) {
             const newFiles = Array.from(event.target.files);
             
-            // Basic size/type validation here can prevent unnecessary large file uploads
             const validFiles = newFiles.filter(file => {
-                if (file.size > 5 * 1024 * 1024) { // 5MB limit
-                    Swal.fire('File Too Large', `${file.name} is over the 5MB limit and was skipped.`, 'warning');
+                if (file.size > 5 * 1024 * 1024) {
+                    Swal.fire({
+                        title: 'File Too Large',
+                        text: `${file.name} is over the 5MB limit and was skipped.`,
+                        icon: 'warning',
+                        width: '400px',
+                        padding: '1.5rem',
+                        customClass: {
+                            popup: 'swal-compact',
+                            title: 'swal-title-compact',
+                            htmlContainer: 'swal-text-compact'
+                        }
+                    });
                     return false;
                 }
                 if (!file.type.match('image/(jpeg|jpg|png)')) {
-                    Swal.fire('Invalid File Type', `${file.name} is not a valid image type (JPG, PNG).`, 'warning');
+                    Swal.fire({
+                        title: 'Invalid File Type',
+                        text: `${file.name} is not a valid image type (JPG, PNG).`,
+                        icon: 'warning',
+                        width: '400px',
+                        padding: '1.5rem',
+                        customClass: {
+                            popup: 'swal-compact',
+                            title: 'swal-title-compact',
+                            htmlContainer: 'swal-text-compact'
+                        }
+                    });
                     return false;
                 }
                 return true;
@@ -294,17 +318,14 @@
             
             uploadedFiles = uploadedFiles.concat(validFiles); 
             renderPreviews();
-            event.target.value = ''; // Clear the input so same file can be selected again
+            event.target.value = '';
         }
 
-        // Function to remove a single file
         function removeFile(indexToRemove) {
             uploadedFiles.splice(indexToRemove, 1); 
-            // Re-render previews to update indices and display
             renderPreviews();
         }
         
-        // Function to clear errors on the page
         function clearErrors() {
             const errorDiv = document.getElementById('validation-errors');
             if(errorDiv) {
@@ -317,14 +338,12 @@
             const fileInput = document.getElementById('photo-upload');
             const previewContainer = document.getElementById('image-preview-container');
 
-            // Handle clicks on the file upload box to open file input
             fileUploadBox.addEventListener('click', function(e) { 
                 if (!e.target.closest('.remove-photo-btn') && !e.target.closest('.image-preview-item')) {
                     fileInput.click(); 
                 }
             });
 
-            // Handle remove button clicks (event delegation)
             previewContainer.addEventListener('click', function(e) {
                 if (e.target.closest('.remove-photo-btn')) {
                     const button = e.target.closest('.remove-photo-btn');
@@ -333,7 +352,6 @@
                 }
             });
             
-            // Drag and drop functionality
             fileUploadBox.addEventListener('dragover', function(e) { 
                 e.preventDefault(); 
                 this.classList.add('border-blue-500','bg-blue-100/50'); 
@@ -353,22 +371,18 @@
                 }
             });
 
-            // 🛑 CRITICAL FIX: Handle form submission using fetch/AJAX
             document.getElementById('issue-report-form').addEventListener('submit', async function(e) {
                 e.preventDefault(); 
 
                 const form = this;
                 const formData = new FormData(form);
                 
-                // Clear any previous validation errors displayed
                 clearErrors(); 
 
-                // Manually append the files from the uploadedFiles array
                 uploadedFiles.forEach((file) => {
                     formData.append('photos[]', file, file.name);
                 });
 
-                // Show loading state/disable button
                 const submitButton = form.querySelector('button[type="submit"]');
                 const originalButtonText = submitButton.innerHTML;
                 submitButton.disabled = true;
@@ -380,28 +394,16 @@
                         body: formData, 
                     });
 
-                    // Check for successful JSON response (Status 200)
                     if (response.ok) {
-                        const data = await response.json(); 
+    const data = await response.json(); 
 
-                        if (data.success) {
-                            // 1. Show SweetAlert success message
-                            await Swal.fire({
-                                title: 'Success! 🎉',
-                                text: data.message,
-                                icon: 'success',
-                                confirmButtonColor: '#2563eb', // blue
-                                timer: 2000,
-                                timerProgressBar: true
-                            });
-
-                            // 2. Redirect the user after the alert
-                            window.location.href = data.redirect_url; 
-                            return; 
-                        }
-                    } 
+    if (data.success) {
+        // Just redirect immediately without SweetAlert
+        window.location.href = data.redirect_url; 
+        return; 
+    }
+}
                     
-                    // Handle Validation error (Status 422)
                     if (response.status === 422) {
                         const errorData = await response.json();
                         
@@ -427,11 +429,17 @@
                             title: 'Validation Failed',
                             html: errorHtml,
                             icon: 'error',
-                            confirmButtonColor: '#ef4444' 
+                            confirmButtonColor: '#ef4444',
+                            width: '450px',
+                            padding: '1.5rem',
+                            customClass: {
+                                popup: 'swal-compact',
+                                title: 'swal-title-compact',
+                                htmlContainer: 'swal-text-compact'
+                            }
                         });
                         
                     } else if (response.status !== 422) {
-                        // General server error
                         throw new Error(`Server responded with status: ${response.status}`);
                     }
 
@@ -441,10 +449,16 @@
                         title: 'Submission Error',
                         text: 'An unexpected network error occurred. Please check your connection and try again.',
                         icon: 'error',
-                        confirmButtonColor: '#ef4444'
+                        confirmButtonColor: '#ef4444',
+                        width: '400px',
+                        padding: '1.5rem',
+                        customClass: {
+                            popup: 'swal-compact',
+                            title: 'swal-title-compact',
+                            htmlContainer: 'swal-text-compact'
+                        }
                     });
                 } finally {
-                    // Re-enable button
                     submitButton.disabled = false;
                     submitButton.innerHTML = originalButtonText;
                 }
@@ -452,7 +466,6 @@
 
         });
     </script>
-    {{-- Session success message removed here --}}
 
 </body>
 </html>

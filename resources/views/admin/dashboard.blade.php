@@ -112,19 +112,6 @@
             font-weight: 600;
         }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-        }
-
-        .user-info img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-            background-color: var(--light-blue);
-        }
-
         /* Dashboard Stats */
         .stats-container {
             display: grid;
@@ -254,11 +241,11 @@
             color: #065f46;
         }
         
-        /* New Status for Suggestions */
         .status.reviewed {
-             background: #ffe4e6; /* Light Red/Pink */
-             color: #dc2626; /* Dark Red */
+             background: #dbeafe;
+             color: var(--primary-blue);
         }
+        
         .status.responded {
             background: #d1fae5;
             color: #065f46;
@@ -273,10 +260,19 @@
             cursor: pointer;
             font-size: 12px;
             transition: background 0.3s;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .action-btn:hover {
             background: var(--dark-blue);
+            color: white;
+        }
+
+        .text-center {
+            text-align: center;
+            padding: 20px;
+            color: var(--dark-gray);
         }
 
         /* Responsive */
@@ -308,11 +304,18 @@
             padding: 12px 15px;
             border-radius: 8px;
             cursor: pointer;
+            display: flex;
+            align-items: center;
         }
 
         .sidebar form button:hover {
             background: rgba(255, 255, 255, 0.1);
             color: var(--light-yellow);
+        }
+
+        .sidebar form button i {
+            margin-right: 10px;
+            font-size: 18px;
         }
 
     </style>
@@ -324,19 +327,18 @@
             <h1>BrgyHub Admin</h1>
         </div>
         <ul class="nav-links">
-            <li><a href="#" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+            <li><a href="{{ route('admin.dashboard') }}" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
             <li><a href="{{ route('admin.issues.index') }}"><i class="fas fa-exclamation-circle"></i> Issue Reports</a></li>
             <li><a href="{{ route('admin.suggestions.index') }}"><i class="fas fa-lightbulb"></i> Suggestions</a></li>
             <li><a href="#"><i class="fas fa-users"></i> User Management</a></li>
             <li>
-    <form method="POST" action="{{ route('logout') }}">
-        @csrf
-        <button type="submit" class="flex items-center w-full text-left p-3 rounded hover:bg-gray-700">
-            <i class="fas fa-sign-out-alt mr-2"></i> Logout
-        </button>
-    </form>
-</li>
-
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </form>
+            </li>
         </ul>
     </div>
 
@@ -346,43 +348,39 @@
         </div>
 
         <div class="stats-container">
-    <div class="stat-card">
-        <div class="stat-card-header">
-            <h3>Total Reports</h3>
-            <i class="fas fa-file-alt"></i>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <h3>Total Reports</h3>
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <div class="stat-card-value">{{ $totalReportsCount ?? 0 }}</div> 
+                <div class="stat-card-desc">+12 from last week</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <h3>Pending Reports</h3>
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-card-value">{{ $pendingReportsCount ?? 0 }}</div>
+                <div class="stat-card-desc">Require attention</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <h3>Resolved Issues</h3>
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="stat-card-value">{{ $resolvedReportsCount ?? 0 }}</div>
+                <div class="stat-card-desc">+5 this week</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-header">
+                    <h3>User Suggestions</h3>
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <div class="stat-card-value">{{ $totalSuggestionsCount ?? 0 }}</div>
+                <div class="stat-card-desc">New ideas for improvement</div>
+            </div>
         </div>
-        {{-- Updated: Use the count of all reports --}}
-        <div class="stat-card-value">{{ $totalReportsCount ?? 0 }}</div> 
-        <div class="stat-card-desc">+12 from last week</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-card-header">
-            <h3>Pending Reports</h3>
-            <i class="fas fa-clock"></i>
-        </div>
-        {{-- Updated: Use the count of pending reports --}}
-        <div class="stat-card-value">{{ $pendingReportsCount ?? 0 }}</div>
-        <div class="stat-card-desc">Require attention</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-card-header">
-            <h3>Resolved Issues</h3>
-            <i class="fas fa-check-circle"></i>
-        </div>
-        {{-- Updated: Use the count of resolved reports --}}
-        <div class="stat-card-value">{{ $resolvedReportsCount ?? 0 }}</div>
-        <div class="stat-card-desc">+5 this week</div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-card-header">
-            <h3>User Suggestions</h3>
-            <i class="fas fa-lightbulb"></i>
-        </div>
-        {{-- Updated: Use the count of all suggestions --}}
-        <div class="stat-card-value">{{ $totalSuggestionsCount ?? 0 }}</div>
-        <div class="stat-card-desc">New ideas for improvement</div>
-    </div>
-</div>
 
         <div class="table-container">
             <div class="table-header">
@@ -390,16 +388,16 @@
                 <div class="filter-options">
                     <select id="reportCategoryFilter">
                         <option value="">All Categories</option>
-                        <option value="Streetlight">Streetlight</option>
-                        <option value="Flooding">Flooding</option>
-                        <option value="Vandalism">Vandalism</option>
-                        <option value="Others">Others</option>
+                        <option value="streetlight">Streetlight</option>
+                        <option value="flooding">Flooding</option>
+                        <option value="vandalism">Vandalism</option>
+                        <option value="others">Others</option>
                     </select>
                     <select id="reportStatusFilter">
                         <option value="">All Status</option>
-                        <option value="Pending">Pending</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Resolved">Resolved</option>
+                        <option value="pending">Pending</option>
+                        <option value="in progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
                     </select>
                     <input type="text" placeholder="Search..." id="reportSearch">
                 </div>
@@ -417,98 +415,83 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- PHP/Blade Loop for Reports goes here --}}
-@foreach ($reports as $report)
-    <tr>
-        <td>#BR-{{ $report->id }}</td>
-        <td>{{ $report->title }}</td>
-        <td>{{ $report->category }}</td>
-        <td>{{ $report->user->name ?? 'Resident' }}</td>
-        <td>{{ $report->created_at->format('M d, Y') }}</td>
-
-        <td>
-            <span class="status 
-                {{ $report->status == 'Pending' ? 'pending' : '' }}
-                {{ $report->status == 'In Progress' ? 'in-progress' : '' }}
-                {{ $report->status == 'Resolved' ? 'resolved' : '' }}
-            ">
-                {{ $report->status }}
-            </span>
-        </td>
-
-        <td>
-            <button class="action-btn"
-                onclick="openReport({{ $report->id }})">
-                View
-            </button>
-        </td>
-    </tr>
-@endforeach
-
+                    @forelse ($reports as $report)
+                    <tr>
+                        <td>#BR-{{ $report->id }}</td>
+                        <td>{{ Str::limit($report->title, 50) }}</td>
+                        <td>{{ $report->category }}</td>
+                        <td>{{ $report->user->name ?? 'Resident' }}</td>
+                        <td>{{ $report->created_at->format('M d, Y') }}</td>
+                        <td>
+                            <span class="status {{ strtolower(str_replace(' ', '-', $report->status)) }}">
+                                {{ $report->status }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ route('admin.issues.edit', $report->id) }}" class="action-btn">
+                                View/Update
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="text-center">No issue reports found.</td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
 
         <div class="table-container">
-    <div class="table-header">
-        <h3>Recent Suggestions</h3>
-        <div class="filter-options">
-            <select id="suggestionStatusFilter">
-                <option value="">All Status</option>
-                <option value="Pending">Pending</option>
-                <option value="Reviewed">Reviewed</option>
-                <option value="Responded">Responded</option>
-            </select>
-            <input type="text" placeholder="Search suggestions..." id="suggestionSearch">
+            <div class="table-header">
+                <h3>Recent Suggestions</h3>
+                <div class="filter-options">
+                    <select id="suggestionStatusFilter">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="reviewed">Reviewed</option>
+                        <option value="responded">Responded</option>
+                    </select>
+                    <input type="text" placeholder="Search suggestions..." id="suggestionSearch">
+                </div>
+            </div>
+            <table id="suggestionsTable">
+                <thead>
+                    <tr>
+                        <th>Suggestion ID</th>
+                        <th>Content</th>
+                        <th>Submitted By</th>
+                        <th>Date</th>
+                        <th>Response Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($suggestions as $suggestion)
+                    <tr>
+                        <td>#SG-{{ $suggestion->id }}</td>
+                        <td>{{ Str::limit($suggestion->content ?? 'No content provided', 50) }}</td>
+                        <td>{{ $suggestion->user->name ?? 'Resident' }}</td> 
+                        <td>{{ $suggestion->created_at->format('M d, Y') }}</td>
+                        <td>
+                            <span class="status {{ strtolower($suggestion->status ?? 'pending') }}">
+                                {{ ucfirst($suggestion->status ?? 'Pending') }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ route('admin.suggestions.edit', $suggestion->id) }}" class="action-btn">
+                                View/Update
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center">No suggestions submitted yet.</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
-    </div>
-    <table id="suggestionsTable">
-        <thead>
-            <tr>
-                <th>Suggestion ID</th>
-                <th>Content</th>
-                <th>Submitted By</th>
-                <th>Date</th>
-                <th>Response Status</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody id="suggestionTableBody">
-            {{-- START: Dynamic Suggestion Data Loop --}}
-            @forelse ($suggestions as $suggestion)
-            <tr>
-                {{-- Ensure your Suggestion model has an 'id' column --}}
-                <td>#SG-{{ $suggestion->id }}</td>
-                
-                {{-- Show the actual suggestion content, limited to 50 characters for clean display --}}
-                <td>{{ Str::limit($suggestion->content ?? 'No content provided', 50) }}</td>
-                
-                {{-- Assumes the Suggestion model has a 'user' relationship --}}
-                <td>{{ $suggestion->user->name ?? 'Resident' }}</td> 
-                
-                {{-- Format the submission date --}}
-                <td>{{ $suggestion->created_at->format('M d, Y') }}</td>
-                
-                <td>
-                    {{-- Status classes ensure correct color coding --}}
-                    <span class="status 
-                        {{ $suggestion->status == 'Pending' ? 'pending' : '' }}
-                        {{ $suggestion->status == 'Reviewed' ? 'reviewed' : '' }}
-                        {{ $suggestion->status == 'Responded' ? 'responded' : '' }}">
-                        {{ $suggestion->status }}
-                    </span>
-                </td>
-                <td><button class="action-btn">View/Respond</button></td>
-            </tr>
-            @empty
-                <tr>
-                    <td colspan="6" class="text-center">No suggestions submitted yet.</td>
-                </tr>
-            @endforelse
-            {{-- END: Dynamic Suggestion Data Loop --}}
-        </tbody>
-    </table>
-</div>
     </div>
 
     <script>
@@ -527,14 +510,12 @@ document.addEventListener("DOMContentLoaded", () => {
         const search = reportSearchInput.value.toLowerCase();
 
         reportRows.forEach(row => {
-            // Note: I've removed the isPlaceholder check for simplicity, 
-            // assuming your Blade loop is what generates the report data.
-            
-            // Indices: Title (1), Category (2), Submitted By (3), Status (5)
+            // Check if this is the empty state row
+            if (row.children.length === 1 && row.children[0].classList.contains('text-center')) {
+                return; // Skip filtering the empty state row
+            }
+
             const rowCategory = row.children[2].innerText.toLowerCase();
-            const rowUser = row.children[3].innerText.toLowerCase();
-            const rowTitle = row.children[1].innerText.toLowerCase();
-            // We use row.children[5] to get the <td> for Status
             const rowStatus = row.children[5].querySelector('.status').innerText.toLowerCase();
 
             let match = true;
@@ -549,10 +530,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 match = false;
             }
 
-            // Search filter (title, user, category, or status ID/Date/Action is also searchable)
+            // Search filter
             if (search) {
                 let rowText = '';
-                // Combine text from all cells except the last (Actions) for searching
                 for (let i = 0; i < row.children.length - 1; i++) {
                     rowText += row.children[i].innerText.toLowerCase() + ' ';
                 }
@@ -572,7 +552,7 @@ document.addEventListener("DOMContentLoaded", () => {
     reportSearchInput.addEventListener("keyup", filterReports);
 
 
-    // --- SUGGESTIONS FILTER/SEARCH LOGIC (NEW) ---
+    // --- SUGGESTIONS FILTER/SEARCH LOGIC ---
 
     const suggestionStatusFilter = document.getElementById("suggestionStatusFilter");
     const suggestionSearchInput = document.getElementById("suggestionSearch");
@@ -583,10 +563,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const search = suggestionSearchInput.value.toLowerCase();
 
         suggestionRows.forEach(row => {
-            // Indices for Suggestions: Content (1), Submitted By (2), Response Status (4)
-            const rowContent = row.children[1].innerText.toLowerCase();
-            const rowUser = row.children[2].innerText.toLowerCase();
-            // We use row.children[4] to get the <td> for Status
+            // Check if this is the empty state row
+            if (row.children.length === 1 && row.children[0].classList.contains('text-center')) {
+                return; // Skip filtering the empty state row
+            }
+
             const rowStatus = row.children[4].querySelector('.status').innerText.toLowerCase();
 
             let match = true;
@@ -596,10 +577,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 match = false;
             }
 
-            // Search filter (ID, Content, Submitted By, Date)
+            // Search filter
             if (search) {
                 let rowText = '';
-                // Combine text from all cells except the last (Actions) for searching
                 for (let i = 0; i < row.children.length - 1; i++) {
                     rowText += row.children[i].innerText.toLowerCase() + ' ';
                 }
@@ -617,12 +597,6 @@ document.addEventListener("DOMContentLoaded", () => {
     suggestionStatusFilter.addEventListener("change", filterSuggestions);
     suggestionSearchInput.addEventListener("keyup", filterSuggestions);
 });
-
-function openReport(reportId) {
-    // Placeholder function for the 'View' button on Issue Reports
-    console.log('Viewing report ID:', reportId);
-    alert('Viewing report ID: ' + reportId);
-}
 </script>
 
 </body>

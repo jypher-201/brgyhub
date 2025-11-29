@@ -106,9 +106,12 @@
             Edit Suggestion
         </h2>
 
-        <div class="mb-3">
+        <div class="mb-3 d-flex gap-2">
             <a href="{{ route('admin.suggestions.index') }}" class="btn btn-outline-primary">
                 <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+            <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-home"></i> Back to Dashboard
             </a>
         </div>
         

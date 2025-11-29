@@ -11,6 +11,8 @@
         :root {
             --primary-blue: #1a4f8c;
             --secondary-blue: #2c6cb0;
+            --golden-yellow: #f9a825;
+            --success-green: #28a745;
         }
 
         body { 
@@ -39,7 +41,6 @@
             margin: 0; 
         }
 
-        /* Standard Button Styles */
         .btn-outline-primary { 
             border-color: var(--primary-blue); 
             color: var(--primary-blue); 
@@ -65,9 +66,8 @@
             background-color: var(--secondary-blue); 
         }
 
-        /* Action Button Style (New/Modified) */
         .action-btn-outline {
-            padding: 0.3rem 0.6rem; /* Make it smaller for the table */
+            padding: 0.3rem 0.6rem;
             font-size: 0.85rem;
             text-decoration: none;
             border-color: var(--primary-blue);
@@ -76,6 +76,7 @@
             font-weight: 500;
             border: 1px solid;
             transition: background-color 0.2s, color 0.2s;
+            display: inline-block;
         }
 
         .action-btn-outline:hover {
@@ -108,22 +109,33 @@
 
         .status-badge { 
             font-size: 0.75rem; 
-            font-weight: 500; 
-            padding: 0.25rem 0.5rem; 
+            font-weight: 600; 
+            padding: 0.35rem 0.65rem; 
             border-radius: 4px; 
+            display: inline-block;
+            text-transform: capitalize;
         }
 
-        .status-pending { background-color: rgba(249, 168, 37, 0.1); color: #f9a825; }
-        .status-reviewed { background-color: rgba(26, 79, 140, 0.1); color: #1a4f8c; }
-        .status-implemented { background-color: rgba(40, 167, 69, 0.1); color: #28a745; }
+        .status-pending { 
+            background-color: #fff8e1; 
+            color: #d18c00; 
+        }
+        
+        .status-reviewed { 
+            background-color: rgba(26, 79, 140, 0.1); 
+            color: var(--primary-blue); 
+        }
+        
+        .status-responded { 
+            background-color: rgba(40, 167, 69, 0.15); 
+            color: var(--success-green); 
+        }
 
         .empty-state { 
             text-align: center; 
             padding: 2rem; 
             color: #6c757d; 
         }
-
-        /* Removed .action-link, using action-btn-outline now */
 
         .suggestion-content { 
             max-width: 300px; 
@@ -132,9 +144,20 @@
             white-space: nowrap; 
         }
 
+        .alert {
+            border-radius: 8px;
+            border: none;
+        }
+
         @media (max-width: 768px) {
-            .header-section { flex-direction: column; align-items: flex-start; gap: 1rem; }
-            .suggestion-content { max-width: 200px; }
+            .header-section { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                gap: 1rem; 
+            }
+            .suggestion-content { 
+                max-width: 200px; 
+            }
         }
     </style>
 </head>
@@ -143,10 +166,28 @@
         <div class="header-section">
             <h2 class="page-title">Resident Suggestions</h2>
             <div class="d-flex gap-2">
-                <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-primary">Back to Dashboard</a>
-                <a href="{{ route('admin.suggestions.index') }}" class="btn btn-primary">Refresh</a>
+                <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
+                </a>
+                <a href="{{ route('admin.suggestions.index') }}" class="btn btn-primary">
+                    <i class="fas fa-sync me-1"></i>Refresh
+                </a>
             </div>
         </div>
+
+        {{-- Success Message --}}
+        @if(session('success'))
+            <div class="alert alert-success mb-4">
+                <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+            </div>
+        @endif
+
+        {{-- Error Message --}}
+        @if(session('error'))
+            <div class="alert alert-danger mb-4">
+                <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+            </div>
+        @endif
 
         <div class="table-container">
             <table class="table table-hover mb-0">
@@ -168,41 +209,44 @@
                             <div class="suggestion-content">{{ $suggestion->content }}</div>
                         </td>
                         <td>
-                            <span class="status-badge 
-                                @if($suggestion->status == 'Pending') status-pending
-                                @elseif($suggestion->status == 'Under Review') status-reviewed
-                                @elseif($suggestion->status == 'Implemented') status-implemented
-                                @else status-pending @endif">
-                                {{ $suggestion->status ?? 'Pending' }}
+                            @php
+                                $status = strtolower($suggestion->status ?? 'pending');
+                                $statusClass = 'status-' . $status;
+                                $statusDisplay = ucfirst($status);
+                            @endphp
+                            <span class="status-badge {{ $statusClass }}">
+                                {{ $statusDisplay }}
                             </span>
                         </td>
                         <td>
-                            @if($suggestion->admin_response)
+                            @if(!empty($suggestion->admin_response))
                                 <div class="suggestion-content" title="{{ $suggestion->admin_response }}">
                                     {{ $suggestion->admin_response }}
                                 </div>
                             @else
-                                <span class="text-muted">-</span>
+                                <span class="text-muted fst-italic">No response yet</span>
                             @endif
                         </td>
-                        <td>{{ $suggestion->created_at->format('M d, Y') }}</td>
+                        <td>{{ $suggestion->created_at->format('M d, Y h:i A') }}</td>
                         <td>
-                            {{-- Consolidated View/Update Button (linked to edit route/respond route) --}}
                             <a href="{{ route('admin.suggestions.edit', $suggestion->id) }}" class="action-btn-outline">
-                                View/Update
+                                <i class="fas fa-edit me-1"></i>View/Update
                             </a>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="empty-state">No suggestions found.</td>
+                        <td colspan="6" class="empty-state">
+                            <i class="fas fa-inbox fa-2x mb-2 text-muted"></i>
+                            <p class="mb-0">No suggestions found.</p>
+                        </td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
 
-        @if(isset($suggestions) && method_exists($suggestions, 'count') && $suggestions->count())
+        @if(isset($suggestions) && method_exists($suggestions, 'links'))
         <div class="mt-3">
             {{ $suggestions->links('pagination::bootstrap-5') }}
         </div>
@@ -210,8 +254,5 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Note: The action button does not have a 'title' attribute, so no hover info appears.
-    </script>
 </body>
 </html>

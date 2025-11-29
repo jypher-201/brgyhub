@@ -12,8 +12,7 @@ class AdminSuggestionController extends Controller
      */
     public function index()
     {
-        // Use paginate instead of get()
-        $suggestions = Suggestion::latest()->paginate(10); // 10 per page
+        $suggestions = Suggestion::latest()->paginate(10);
         return view('admin.suggestions.index', compact('suggestions'));
     }
 
@@ -27,7 +26,7 @@ class AdminSuggestionController extends Controller
     }
 
     /**
-     * Show form to respond to a suggestion.
+     * Show form to edit a suggestion.
      */
     public function edit($id)
     {
@@ -36,21 +35,22 @@ class AdminSuggestionController extends Controller
     }
 
     /**
-     * Save admin response to a suggestion.
+     * Update suggestion with admin response and status.
      */
-    public function respond(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $suggestion = Suggestion::findOrFail($id);
 
         $request->validate([
-            'admin_response' => 'required|string|max:500',
+            'status' => 'required|in:pending,reviewed,responded',
+            'admin_response' => 'nullable|string|max:500',
         ]);
 
+        $suggestion->status = $request->status;
         $suggestion->admin_response = $request->admin_response;
         $suggestion->save();
 
         return redirect()->route('admin.suggestions.index')
-                         ->with('success', 'Response saved successfully.');
+                         ->with('success', 'Suggestion updated successfully.');
     }
 }
-

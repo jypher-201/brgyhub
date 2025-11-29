@@ -13,6 +13,7 @@ class Suggestion extends Model
         'user_id',
         'content',
         'admin_response',
+        'status'
     ];
 
     public function user()

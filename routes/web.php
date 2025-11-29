@@ -55,9 +55,9 @@ Route::prefix('admin')->middleware([RoleMiddleware::class . ':admin'])->name('ad
 
     // Admin Suggestions
     Route::get('/suggestions', [AdminSuggestionController::class, 'index'])->name('suggestions.index');
-    Route::get('/suggestions/{suggestion}', [AdminSuggestionController::class, 'show'])->name('suggestions.show');
-    Route::get('/suggestions/{suggestion}/edit', [AdminSuggestionController::class, 'edit'])->name('suggestions.edit');
-    Route::post('/suggestions/{suggestion}/respond', [AdminSuggestionController::class, 'respond'])->name('suggestions.respond');
+    Route::get('/suggestions/{id}/edit', [AdminSuggestionController::class, 'edit'])->name('suggestions.edit');
+    Route::get('/suggestions/{id}', [AdminSuggestionController::class, 'show'])->name('suggestions.show');
+    Route::put('/suggestions/{id}', [AdminSuggestionController::class, 'update'])->name('suggestions.update');
 });
 
 

@@ -84,4 +84,10 @@ public function store(Request $request)
 
         return redirect()->back()->with('success', 'Report updated successfully!');
     }
+
+    public function show($id)
+{
+    $report = IssueReport::where('user_id', Auth::id())->findOrFail($id);
+    return view('resident.issues.show', compact('report'));
+}
 }

@@ -58,6 +58,12 @@ Route::prefix('admin')->middleware([RoleMiddleware::class . ':admin'])->name('ad
     Route::get('/suggestions/{id}/edit', [AdminSuggestionController::class, 'edit'])->name('suggestions.edit');
     Route::get('/suggestions/{id}', [AdminSuggestionController::class, 'show'])->name('suggestions.show');
     Route::put('/suggestions/{id}', [AdminSuggestionController::class, 'update'])->name('suggestions.update');
+
+    // User Management
+    Route::get('/users', [AdminController::class, 'users'])->name('users.index');
+    Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
+    Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');
+    Route::put('/users/{id}', [AdminController::class, 'updateUser'])->name('users.update');
 });
 
 
@@ -70,6 +76,7 @@ Route::prefix('admin')->middleware([RoleMiddleware::class . ':admin'])->name('ad
     Route::get('/issues', [IssueReportController::class, 'index'])->name('issues.index');
     Route::get('/issues/create', [IssueReportController::class, 'create'])->name('issues.create');
     Route::post('/issues', [IssueReportController::class, 'store'])->name('issues.store');
+    Route::get('/issues/{id}', [IssueReportController::class, 'show'])->name('issues.show'); 
 
     // Suggestions
     Route::get('/suggestions', [SuggestionController::class, 'index'])->name('suggestions.index');

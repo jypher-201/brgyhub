@@ -186,29 +186,29 @@
                 </thead>
                 <tbody>
                     @forelse($reports as $report)
-                    <tr>
-                        <td>{{ $report->title }}</td>
-                        <td>{{ $report->category }}</td>
-                        <td>
-                            <span class="status-badge 
-                                @if($report->status == 'Pending') status-pending
-                                @elseif($report->status == 'In Progress') status-in-progress
-                                @elseif($report->status == 'Resolved') status-resolved
-                                @endif">
-                                {{ $report->status }}
-                            </span>
-                        </td>
-                        <td>{{ $report->admin_remarks ?? '-' }}</td>
-                        <td>{{ $report->created_at->format('M d, Y H:i') }}</td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="5" class="empty-state">
-                            No reports submitted yet
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
+                    <tr style="cursor: pointer;" onclick="window.location='{{ route('resident.issues.show', $report->id) }}'">
+                      <td>{{ $report->title }}</td>
+                     <td>{{ $report->category }}</td>
+                <td>
+            <span class="status-badge 
+                @if($report->status == 'Pending') status-pending
+                @elseif($report->status == 'In Progress') status-in-progress
+                @elseif($report->status == 'Resolved') status-resolved
+                @endif">
+                {{ $report->status }}
+            </span>
+        </td>
+        <td>{{ $report->admin_remarks ?? '-' }}</td>
+        <td>{{ $report->created_at->format('M d, Y H:i') }}</td>
+    </tr>
+    @empty
+    <tr>
+        <td colspan="5" class="empty-state">
+            No reports submitted yet
+        </td>
+    </tr>
+    @endforelse
+</tbody>
             </table>
         </div>
 

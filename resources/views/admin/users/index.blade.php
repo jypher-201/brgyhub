@@ -296,6 +296,7 @@
         </div>
     </div>
 
+    <!-- Add User Modal -->
     <div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -341,6 +342,7 @@
         </div>
     </div>
 
+    <!-- Edit User Modal -->
     <div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -348,9 +350,9 @@
                     <h5 class="modal-title"><i class="fas fa-user-edit me-2"></i>Edit User Role</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="editUserForm" action="" method="POST">
+                <form id="editUserForm" action="{{ route('admin.users.update', ['id' => 0]) }}" method="POST">
                     @csrf
-                    @method('PUT')
+                    <input type="hidden" name="_method" value="PUT">
                     <div class="modal-body">
                         <input type="hidden" id="edit_user_id" name="user_id">
                         
@@ -390,7 +392,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Existing Edit Modal Logic
+        // Populate Edit Modal
         function populateEditModal(user) {
             document.getElementById('edit_user_id').value = user.id;
             document.getElementById('edit_name').value = user.name;
@@ -399,10 +401,11 @@
             document.getElementById('edit_role').value = user.role;
 
             const form = document.getElementById('editUserForm');
-            form.action = `/admin/users/${user.id}`;
+            // Use the route name with proper ID
+            form.action = form.action.replace('/0', '/' + user.id);
         }
 
-        // Existing Filter Logic
+        // Filter Users
         function filterUsers() {
             const searchValue = document.getElementById('searchInput').value.toLowerCase();
             const roleValue = document.getElementById('roleFilter').value.toLowerCase();
@@ -414,9 +417,8 @@
                 if (row.cells.length === 1) continue; // Skip empty state row
 
                 const name = row.cells[1].textContent.toLowerCase();
-                const username = row.cells[2].textContent.toLowerCase(); // Note: index 2 is email in table head, check indexing
+                const email = row.cells[2].textContent.toLowerCase();
                 const role = row.cells[3].textContent.toLowerCase();
-                const email = row.cells[2].textContent.toLowerCase(); // adjusted based on your table layout
 
                 const matchesSearch = !searchValue || 
                     name.includes(searchValue) || 
@@ -431,14 +433,13 @@
         document.getElementById('searchInput').addEventListener('keyup', filterUsers);
         document.getElementById('roleFilter').addEventListener('change', filterUsers);
 
-        // --- NEW: SweetAlert2 Delete Confirmation ---
+        // SweetAlert2 Delete Confirmation
         document.addEventListener('DOMContentLoaded', function() {
-            // Select all forms with the class 'delete-form'
             const deleteForms = document.querySelectorAll('.delete-form');
 
             deleteForms.forEach(form => {
                 form.addEventListener('submit', function(e) {
-                    e.preventDefault(); // Stop the form from submitting immediately
+                    e.preventDefault();
 
                     Swal.fire({
                         title: 'Delete User?',
@@ -449,15 +450,14 @@
                         cancelButtonColor: '#6c757d',
                         confirmButtonText: 'Yes, delete',
                         cancelButtonText: 'Cancel',
-                        width: '300px', // Sets the width to be smaller
+                        width: '300px',
                         padding: '1rem',
                         customClass: {
-                            title: 'fs-5', // Bootstrap font-size class for title
-                            content: 'fs-6' // Bootstrap font-size class for content
+                            title: 'fs-5',
+                            content: 'fs-6'
                         }
                     }).then((result) => {
                         if (result.isConfirmed) {
-                            // If user confirmed, submit the form programmatically
                             this.submit();
                         }
                     });

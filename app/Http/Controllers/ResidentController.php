@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\IssueReport;
+use App\Models\Suggestion; // Ensure this is imported
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -13,11 +14,18 @@ class ResidentController extends Controller
     {
         $userId = Auth::id();
         
+        // 1. Fetch Issue Reports
         $reports = IssueReport::where('user_id', $userId)
-                    ->latest()
-                    ->take(5)
-                    ->get();
+                             ->latest()
+                             ->take(5)
+                             ->get();
 
+        // 2. Fetch Suggestions (FIXED: Added this missing logic)
+        $suggestions = Suggestion::where('user_id', $userId)
+                                 ->latest()
+                                 ->take(5) // Limit to match reports, adjust as needed
+                                 ->get();
+        
         // Get unread notifications
         $notifications = Notification::where('user_id', $userId)
             ->where('status', 'Unread')
@@ -26,7 +34,8 @@ class ResidentController extends Controller
         
         $unreadCount = $notifications->count();
 
-        return view('resident.dashboard', compact('reports', 'notifications', 'unreadCount'));
+        // 3. Pass both 'reports' AND 'suggestions' to the view (FIXED)
+        return view('resident.dashboard', compact('reports', 'suggestions', 'notifications', 'unreadCount'));
     }
 
     public function notifications()

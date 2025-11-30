@@ -92,8 +92,14 @@
             vertical-align: middle; 
         }
         
+        /* Added cursor pointer to indicate clickability */
+        .table tbody tr {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
         .table tbody tr:hover { 
-            background-color: #f8fafc; 
+            background-color: #f1f5f9; 
         }
         
         .status-badge { 
@@ -170,7 +176,7 @@
         <div class="header-section">
             <h2 class="page-title">My Suggestions</h2>
             <div class="header-actions">
-                <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">Back to Dashboard</a>
+                <a href="{{ route('resident.dashboard') }}" class="btn btn-outline-primary">Back to Dashboard</a>
                 <a href="{{ route('resident.suggestions.create') }}" class="btn btn-primary">New Suggestion</a>
             </div>
         </div>
@@ -193,7 +199,8 @@
                 </thead>
                 <tbody>
                     @forelse($suggestions as $suggestion)
-                    <tr>
+                    {{-- Added onclick event to navigate to the detail view --}}
+                    <tr onclick="window.location='{{ route('resident.suggestions.show', $suggestion->id) }}'">
                         <td>
                             <div class="suggestion-content" title="{{ $suggestion->content }}">
                                 {{ $suggestion->content }}
@@ -202,7 +209,7 @@
                         <td>
                             <span class="status-badge 
                                 @if($suggestion->status == 'Pending') status-pending
-                                @elseif($suggestion->status == 'Under Review') status-reviewed
+                                @elseif($suggestion->status == 'Reviewed' || $suggestion->status == 'Under Review') status-reviewed
                                 @elseif($suggestion->status == 'Implemented') status-implemented
                                 @else status-pending @endif">
                                 {{ $suggestion->status ?? 'Pending' }}
@@ -212,7 +219,8 @@
                         <td>{{ $suggestion->created_at->format('M d, Y') }}</td>
                     </tr>
                     @empty
-                    <tr>
+                    {{-- Removed onclick for empty state row --}}
+                    <tr style="cursor: default;">
                         <td colspan="4" class="empty-state">
                             No suggestions submitted yet
                         </td>

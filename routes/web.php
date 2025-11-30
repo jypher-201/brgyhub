@@ -82,6 +82,7 @@ Route::prefix('admin')->middleware([RoleMiddleware::class . ':admin'])->name('ad
     Route::get('/suggestions', [SuggestionController::class, 'index'])->name('suggestions.index');
     Route::get('/suggestions/create', [SuggestionController::class, 'create'])->name('suggestions.create');
     Route::post('/suggestions', [SuggestionController::class, 'store'])->name('suggestions.store');
+    Route::get('/suggestions/{id}', [SuggestionController::class, 'show'])->name('suggestions.show'); 
 
     // Notification routes
     Route::get('/notifications', [ResidentController::class, 'notifications'])->name('notifications.index');

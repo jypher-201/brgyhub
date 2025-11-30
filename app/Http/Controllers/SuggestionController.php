@@ -36,6 +36,21 @@ class SuggestionController extends Controller
         return redirect()->route('resident.suggestions.index')->with('success', 'Suggestion submitted successfully!');
     }
 
+    /**
+     * Display the specified suggestion resource for the resident.
+     * This method is required by the route 'resident.suggestions.show'.
+     */
+    public function show($id)
+    {
+        // Find the suggestion by ID, scoped to the current user
+        $suggestion = Suggestion::where('user_id', Auth::id())
+                                ->findOrFail($id);
+
+        // This assumes you have a detail view named 'resident.suggestions.show'
+        return view('resident.suggestions.show', compact('suggestion'));
+    }
+
+
     // Optional: Admin view all suggestions
     public function adminIndex()
     {

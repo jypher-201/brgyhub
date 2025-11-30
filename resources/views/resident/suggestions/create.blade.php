@@ -45,9 +45,9 @@
             color: var(--dark-text); 
             font-weight: 700; 
             margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
         }
         
         .page-title i {
@@ -208,7 +208,7 @@
                 Submit Suggestion / Feedback
             </h2>
             <div class="header-actions">
-                <a href="{{ route('dashboard') }}" class="btn btn-outline-primary">
+                <a href="{{ route('resident.dashboard') }}" class="btn btn-outline-primary">
                     <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
                 </a>
             </div>
@@ -227,6 +227,21 @@
             
             <form action="{{ route('resident.suggestions.store') }}" method="POST">
                 @csrf
+                
+                {{-- NEW: Title Input Box --}}
+                <div class="mb-4">
+                    <label for="title" class="form-label">
+                        <i class="fas fa-heading"></i>
+                        Suggestion Title
+                    </label>
+                    <input type="text" name="title" class="form-control" required placeholder="A short title for your suggestion (e.g., Community Garden Project)" value="{{ old('title') }}">
+                    @error('title') 
+                        <span class="text-danger">
+                            <i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+                        </span> 
+                    @enderror
+                </div>
+
                 <div class="mb-4">
                     <label for="content" class="form-label">
                         <i class="fas fa-pencil-alt"></i>

@@ -37,6 +37,37 @@
     
     <style>
         body { font-family: 'Inter', sans-serif; }
+        
+        /* --- Custom Variables & Button Styles --- */
+        :root {
+            --primary-blue: #1a4f8c;
+            --secondary-blue: #2c6cb0;
+            --golden-yellow: #f9a825;
+            --dark-gold: #d18c00;
+        }
+
+        .btn-outline-primary { 
+            border: 1px solid var(--primary-blue); 
+            color: var(--primary-blue); 
+            border-radius: 6px; 
+            font-weight: 500; 
+            padding: 0.5rem 1.25rem; 
+            transition: all 0.2s ease; 
+            display: inline-flex;
+            align-items: center;
+            background-color: white;
+            text-decoration: none;
+        }
+        
+        .btn-outline-primary:hover { 
+            background-color: var(--primary-blue); 
+            color: white; 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+        }
+
+        /* ----------------------------------------- */
+
         .gradient-submit { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
         .form-styled { border-width: 3px; @apply border-gold-500 rounded-xl shadow-sm p-4 transition duration-200; }
         .form-styled:focus { @apply border-blue-600 ring-4 ring-blue-500/50 outline-none; }
@@ -112,7 +143,8 @@
     <div class="w-full mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10">
 
         <div class="mb-6 flex justify-between items-center">
-            <a href="{{ url('/dashboard') }}" class="flex items-center text-slate-600 hover:text-blue-700 font-medium transition-colors p-2 -ml-2 rounded-lg hover:bg-slate-200">
+            {{-- UPDATED: Back to Dashboard Button using your specific CSS class --}}
+            <a href="{{ route('resident.dashboard') }}" class="btn-outline-primary">
                 <i class="fas fa-arrow-left mr-2"></i>
                 Back to Dashboard
             </a>
@@ -243,7 +275,7 @@
 
     </div>
     
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <script>
         let uploadedFiles = [];
@@ -395,14 +427,14 @@
                     });
 
                     if (response.ok) {
-    const data = await response.json(); 
+                        const data = await response.json(); 
 
-    if (data.success) {
-        // Just redirect immediately without SweetAlert
-        window.location.href = data.redirect_url; 
-        return; 
-    }
-}
+                        if (data.success) {
+                            // Just redirect immediately without SweetAlert
+                            window.location.href = data.redirect_url; 
+                            return; 
+                        }
+                    }
                     
                     if (response.status === 422) {
                         const errorData = await response.json();

@@ -24,12 +24,15 @@ class SuggestionController extends Controller
     // Store a new suggestion
     public function store(Request $request)
     {
+        // FIX: Added validation for the new 'title' field
         $request->validate([
+            'title' => 'required|string|max:255', // Title is now required
             'content' => 'required|string|max:1000',
         ]);
 
         Suggestion::create([
             'user_id' => Auth::id(),
+            'title' => $request->title, // Title is now correctly being passed to the create method
             'content' => $request->content,
         ]);
 
@@ -44,7 +47,7 @@ class SuggestionController extends Controller
     {
         // Find the suggestion by ID, scoped to the current user
         $suggestion = Suggestion::where('user_id', Auth::id())
-                                ->findOrFail($id);
+                                 ->findOrFail($id);
 
         // This assumes you have a detail view named 'resident.suggestions.show'
         return view('resident.suggestions.show', compact('suggestion'));

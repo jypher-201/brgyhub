@@ -10,15 +10,20 @@ class AdminController extends Controller
 {
     public function index()
     {
-        // 1. --- Calculate Statistics for the Stat Cards ---
+        // 1. --- Calculate Statistics for the Stat Cards and Notification Badge ---
 
         // Counts for Issue Reports
         $totalReportsCount = IssueReport::count();
         $pendingReportsCount = IssueReport::where('status', 'Pending')->count();
         $resolvedReportsCount = IssueReport::where('status', 'Resolved')->count();
         
+        // **NEW: Variable for the Sidebar Notification Badge**
+        $newReportsCount = $pendingReportsCount;
+        
         // Counts for Suggestions
         $totalSuggestionsCount = Suggestion::count();
+
+        $newSuggestionsCount = Suggestion::where('status', 'Pending')->count();
         
         // 2. --- Fetch Recent Data for Tables ---
         
@@ -40,7 +45,11 @@ class AdminController extends Controller
             'totalReportsCount' => $totalReportsCount,
             'pendingReportsCount' => $pendingReportsCount,
             'resolvedReportsCount' => $resolvedReportsCount,
+            'newSuggestionsCount' => $newSuggestionsCount,
             'totalSuggestionsCount' => $totalSuggestionsCount,
+            
+            // **NEW: Pass the notification count to the view**
+            'newReportsCount' => $newReportsCount,
             
             // Table data
             'reports' => $reports, // Used for the "Recent Issue Reports" table
@@ -70,7 +79,6 @@ class AdminController extends Controller
         
         $user->delete();
         
-        // CHANGED: Use back() to stay on the same page (preserves pagination/search)
         return back()->with('success', 'User deleted successfully.');
     }
 
@@ -92,7 +100,6 @@ class AdminController extends Controller
             'contact_number' => $request->contact_number,
         ]);
 
-        // CHANGED: Use back() to stay on the User Management page
         return back()->with('success', 'User created successfully!');
     }
 
@@ -108,8 +115,6 @@ class AdminController extends Controller
             'role' => $request->role,
         ]);
 
-        // CHANGED: Use back() so it doesn't redirect you to a new URL, 
-        // it just reloads the current page with the success message.
         return back()->with('success', 'User role updated successfully!');
     }
 }

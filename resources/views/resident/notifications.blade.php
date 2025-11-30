@@ -36,6 +36,12 @@
             margin-bottom: 1.5rem;
         }
 
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--dark-text);
+        }
+
         .notification-item {
             background-color: white;
             border-radius: 8px;
@@ -88,14 +94,33 @@
             font-size: 0.8rem;
             color: var(--light-text);
         }
-
+        
+        /* FIX: Styling for Mark All as Read button */
         .btn-mark-all {
             background-color: var(--primary-blue);
             border: none;
             color: white;
+            font-size: 0.875rem; /* Equivalent to Bootstrap's btn-sm text size */
+            padding: 0.25rem 0.6rem; /* Adjust padding for sm size */
+            border-radius: 6px;
+            transition: all 0.2s ease;
         }
         .btn-mark-all:hover {
             background-color: var(--secondary-blue);
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        /* Standard button styles used in the header */
+        .btn-outline-secondary {
+            border-color: #6c757d;
+            color: #6c757d;
+            border-radius: 6px;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+        }
+        .btn-outline-secondary:hover {
+            background-color: #6c757d;
             color: white;
         }
     </style>
@@ -114,7 +139,7 @@
                 @if($notifications->where('status', 'Unread')->count() > 0)
                 <form action="{{ route('resident.notifications.readAll') }}" method="POST" class="d-inline">
                     @csrf
-                    <button type="submit" class="btn btn-sm btn-mark-all">
+                    <button type="submit" class="btn-mark-all">
                         <i class="fas fa-check-double me-1"></i> Mark All as Read
                     </button>
                 </form>
@@ -152,14 +177,11 @@
                     $icon = 'fas fa-lightbulb';
                     $iconClass = 'status-suggestion';
                 }
+
+                $link = $targetId ? route($targetRoute, $targetId) : '#';
             @endphp
             
-            <form action="{{ route('resident.notifications.read', $notification->id) }}" method="POST" class="notification-item {{ $notification->status == 'Unread' ? 'unread' : 'read' }}"
-                  onsubmit="event.preventDefault(); this.submit();"
-                  onclick="window.location='{{ $targetId ? route($targetRoute, $targetId) : '#' }}';">
-                @csrf
-                <input type="hidden" name="_method" value="POST">
-
+            <a href="{{ $link }}" class="notification-item {{ $notification->status == 'Unread' ? 'unread' : 'read' }} text-decoration-none text-reset">
                 <div class="d-flex p-3 align-items-center">
                     <div class="icon-box {{ $iconClass }} me-3">
                         <i class="{{ $icon }}"></i>
@@ -173,12 +195,15 @@
                     </div>
 
                     @if($notification->status == 'Unread')
-                        <button type="submit" class="btn btn-sm btn-outline-secondary ms-3" title="Mark as Read">
-                            <i class="fas fa-check"></i>
-                        </button>
+                        <form action="{{ route('resident.notifications.read', $notification->id) }}" method="POST" class="ms-3">
+                            @csrf
+                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="Mark as Read">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </form>
                     @endif
                 </div>
-            </form>
+            </a>
         @empty
             <div class="alert alert-info text-center mt-4">
                 <i class="fas fa-inbox me-2"></i>You have no notifications.
@@ -186,9 +211,11 @@
         @endforelse
 
         <!-- Pagination -->
+        @if(isset($notifications) && method_exists($notifications, 'links'))
         <div class="d-flex justify-content-center mt-4">
             {{ $notifications->links('pagination::bootstrap-5') }}
         </div>
+        @endif
         
     </div>
 

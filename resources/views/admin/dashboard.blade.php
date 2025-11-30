@@ -17,6 +17,7 @@
             --white: #ffffff;
             --border-radius: 8px;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --sidebar-width: 250px; /* Define sidebar width as a variable */
         }
 
         * {
@@ -29,19 +30,46 @@
         body {
             background-color: #f9fafb;
             color: var(--dark-gray);
-            display: flex;
+            /* Removed display: flex; from body, as flex is now managed differently for fixed layout */
             min-height: 100vh;
+            display: block; /* Ensure body takes full document height/width */
         }
+        
+        /* ---------------------------------------------------- */
+        /* START: FIXED SIDEBAR STYLES */
+        /* ---------------------------------------------------- */
 
-        /* Sidebar Styles */
+        /* Sidebar Styles - FIXED POSITION */
         .sidebar {
-            width: 250px;
+            width: var(--sidebar-width);
             background: var(--primary-blue);
             color: var(--white);
             padding: 20px 0;
             transition: all 0.3s;
             box-shadow: var(--shadow);
+            
+            /* KEY STYLES FOR FIXING THE SIDEBAR */
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%; /* Make it take up the full viewport height */
+            overflow-y: auto; /* Allow scrolling within the sidebar if navigation links are too long */
         }
+
+        /* Main Content Styles - PUSHED TO THE RIGHT */
+        .main-content {
+            /* Pushes the content away from the fixed sidebar */
+            margin-left: var(--sidebar-width);
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            min-height: 100vh; /* Ensure content section is at least full height */
+        }
+        
+        /* ---------------------------------------------------- */
+        /* END: FIXED SIDEBAR STYLES */
+        /* ---------------------------------------------------- */
+
 
         .logo {
             display: flex;
@@ -91,12 +119,27 @@
             font-size: 18px;
         }
 
-        /* Main Content Styles */
-        .main-content {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
+        /* --- STYLES FOR NOTIFICATION BADGE --- */
+        .nav-link-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-grow: 1;
         }
+
+        .notification-badge {
+            background-color: #ef4444; /* Red badge */
+            color: var(--white);
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 9999px;
+            min-width: 20px;
+            text-align: center;
+            line-height: 1.2;
+            margin-left: 10px;
+        }
+        /* -------------------------------------------------------- */
 
         .header {
             display: flex;
@@ -212,6 +255,7 @@
             padding: 12px 15px;
             text-align: left;
             border-bottom: 1px solid #e5e7eb;
+            vertical-align: top;
         }
 
         th {
@@ -231,22 +275,12 @@
             color: #d97706;
         }
 
-        .status.in-progress {
+        .status.in-progress, .status.reviewed {
             background: #dbeafe;
             color: var(--primary-blue);
         }
 
-        .status.resolved {
-            background: #d1fae5;
-            color: #065f46;
-        }
-        
-        .status.reviewed {
-             background: #dbeafe;
-             color: var(--primary-blue);
-        }
-        
-        .status.responded {
+        .status.resolved, .status.responded {
             background: #d1fae5;
             color: #065f46;
         }
@@ -277,19 +311,24 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-            }
             
+            /* Remove fixed positioning on mobile */
             .sidebar {
+                position: relative;
                 width: 100%;
                 height: auto;
+                overflow-y: visible;
+            }
+
+            /* Remove margin-left when sidebar is not fixed */
+            .main-content {
+                margin-left: 0;
             }
             
             .stats-container {
                 grid-template-columns: 1fr;
             }
-            
+
             .filter-options {
                 flex-direction: column;
             }
@@ -328,8 +367,28 @@
         </div>
         <ul class="nav-links">
             <li><a href="{{ route('admin.dashboard') }}" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
-            <li><a href="{{ route('admin.issues.index') }}"><i class="fas fa-exclamation-circle"></i> Issue Reports</a></li>
-            <li><a href="{{ route('admin.suggestions.index') }}"><i class="fas fa-lightbulb"></i> Suggestions</a></li>
+            <li>
+                <a href="{{ route('admin.issues.index') }}">
+                    <i class="fas fa-exclamation-circle"></i> 
+                    <span class="nav-link-content">
+                        Issue Reports
+                        @if (isset($newReportsCount) && $newReportsCount > 0)
+                            <span class="notification-badge">{{ $newReportsCount }}</span>
+                        @endif
+                    </span>
+                </a>
+            </li>
+            <li>
+                <a href="{{ route('admin.suggestions.index') }}">
+                    <i class="fas fa-lightbulb"></i> 
+                    <span class="nav-link-content">
+                        Suggestions
+                        @if (isset($newSuggestionsCount) && $newSuggestionsCount > 0)
+                            <span class="notification-badge">{{ $newSuggestionsCount }}</span>
+                        @endif
+                    </span>
+                </a>
+            </li>
             <li><a href="{{ route('admin.users.index') }}"><i class="fas fa-users"></i> User Management</a></li>
             <li>
                 <form method="POST" action="{{ route('logout') }}">
@@ -459,7 +518,7 @@
                 <thead>
                     <tr>
                         <th>Suggestion ID</th>
-                        <th>Content</th>
+                        <th>Title</th>
                         <th>Submitted By</th>
                         <th>Date</th>
                         <th>Response Status</th>
@@ -470,7 +529,7 @@
                     @forelse ($suggestions as $suggestion)
                     <tr>
                         <td>#SG-{{ $suggestion->id }}</td>
-                        <td>{{ Str::limit($suggestion->content ?? 'No content provided', 50) }}</td>
+                        <td>{{ Str::limit($suggestion->title ?? 'N/A', 50) }}</td>
                         <td>{{ $suggestion->user->name ?? 'Resident' }}</td> 
                         <td>{{ $suggestion->created_at->format('M d, Y') }}</td>
                         <td>
@@ -580,6 +639,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Search filter
             if (search) {
                 let rowText = '';
+                // Adjusted loop bounds to match table structure (now 6 columns, index 0-5)
                 for (let i = 0; i < row.children.length - 1; i++) {
                     rowText += row.children[i].innerText.toLowerCase() + ' ';
                 }

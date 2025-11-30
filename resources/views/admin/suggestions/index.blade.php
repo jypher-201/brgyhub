@@ -138,15 +138,33 @@
         }
 
         .suggestion-content { 
-            max-width: 300px; 
+            max-width: 250px; 
             overflow: hidden; 
             text-overflow: ellipsis; 
             white-space: nowrap; 
         }
 
+        .suggestion-title { 
+            max-width: 200px; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            white-space: nowrap; 
+            font-weight: 600;
+        }
+
         .alert {
             border-radius: 8px;
             border: none;
+        }
+
+        /* Styling for the new filter row */
+        .filter-row {
+            padding: 1rem;
+            border-bottom: 1px solid #e9ecef;
+            margin-bottom: 1.5rem;
+            background-color: white;
+            border-radius: 8px; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
         }
 
         @media (max-width: 768px) {
@@ -155,8 +173,15 @@
                 align-items: flex-start; 
                 gap: 1rem; 
             }
-            .suggestion-content { 
-                max-width: 200px; 
+            .suggestion-content, .suggestion-title { 
+                max-width: 150px; 
+            }
+            .filter-row .d-flex {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .filter-row .d-flex > * {
+                width: 100%;
             }
         }
     </style>
@@ -169,9 +194,7 @@
                 <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-primary">
                     <i class="fas fa-arrow-left me-1"></i>Back to Dashboard
                 </a>
-                <a href="{{ route('admin.suggestions.index') }}" class="btn btn-primary">
-                    <i class="fas fa-sync me-1"></i>Refresh
-                </a>
+                <!-- Removed Refresh button, replaced by real-time filtering -->
             </div>
         </div>
 
@@ -189,12 +212,44 @@
             </div>
         @endif
 
+        <!-- NEW: Filter Form Section -->
+        <div class="filter-row">
+            <!-- Added ID for JavaScript submission -->
+            <form id="suggestionFilterForm" method="GET" action="{{ route('admin.suggestions.index') }}">
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <div class="flex-grow-1">
+                        <label for="search" class="form-label visually-hidden">Search</label>
+                        <input type="text" name="search" id="search" class="form-control" placeholder="Search by title or content..." value="{{ request('search') }}">
+                    </div>
+
+                    <div class="flex-shrink-0">
+                        <label for="status" class="form-label visually-hidden">Filter by Status</label>
+                        <select name="status" id="status" class="form-select">
+                            <option value="">All Status</option>
+                            <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="Reviewed" {{ request('status') == 'Reviewed' ? 'selected' : '' }}>Reviewed</option>
+                            <option value="Responded" {{ request('status') == 'Responded' ? 'selected' : '' }}>Responded</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Clear Filters link only shown when a filter is applied -->
+                    @if (request()->hasAny(['search', 'status']))
+                        <a href="{{ route('admin.suggestions.index') }}" class="btn btn-outline-secondary flex-shrink-0">
+                            <i class="fas fa-times me-1"></i> Clear Filters
+                        </a>
+                    @endif
+                </div>
+            </form>
+        </div>
+
         <div class="table-container">
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Title</th> 
                         <th>Suggestion Content</th>
+                        <th>Submitted By</th>
                         <th>Status</th>
                         <th>Admin Response</th>
                         <th>Submitted At</th>
@@ -205,9 +260,18 @@
                     @forelse ($suggestions as $suggestion)
                     <tr>
                         <td>{{ $suggestion->id }}</td>
-                        <td title="{{ $suggestion->content }}">
-                            <div class="suggestion-content">{{ $suggestion->content }}</div>
+                        
+                        <td>
+                            <div class="suggestion-title" title="{{ $suggestion->title }}">
+                                {{ \Illuminate\Support\Str::limit($suggestion->title ?? 'N/A', 30) }}
+                            </div>
                         </td>
+
+                        <td title="{{ $suggestion->content }}">
+                            <div class="suggestion-content">{{ \Illuminate\Support\Str::limit($suggestion->content, 50) }}</div>
+                        </td>
+                        
+                        <td>{{ $suggestion->user->name ?? 'N/A' }}</td>
                         <td>
                             @php
                                 $status = strtolower($suggestion->status ?? 'pending');
@@ -221,7 +285,7 @@
                         <td>
                             @if(!empty($suggestion->admin_response))
                                 <div class="suggestion-content" title="{{ $suggestion->admin_response }}">
-                                    {{ $suggestion->admin_response }}
+                                    {{ \Illuminate\Support\Str::limit($suggestion->admin_response, 50) }}
                                 </div>
                             @else
                                 <span class="text-muted fst-italic">No response yet</span>
@@ -236,9 +300,9 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="empty-state">
+                        <td colspan="8" class="empty-state">
                             <i class="fas fa-inbox fa-2x mb-2 text-muted"></i>
-                            <p class="mb-0">No suggestions found.</p>
+                            <p class="mb-0">No suggestions found matching your criteria.</p>
                         </td>
                     </tr>
                     @endforelse
@@ -248,11 +312,47 @@
 
         @if(isset($suggestions) && method_exists($suggestions, 'links'))
         <div class="mt-3">
-            {{ $suggestions->links('pagination::bootstrap-5') }}
+            {{ $suggestions->appends(request()->except('page'))->links('pagination::bootstrap-5') }}
         </div>
         @endif
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('suggestionFilterForm');
+            const searchInput = document.getElementById('search');
+            const statusSelect = document.getElementById('status');
+            let searchTimeout;
+
+            // Function to submit the form
+            const submitForm = () => {
+                form.submit();
+            };
+
+            // Event listener for Status (instant submission on change)
+            statusSelect.addEventListener('change', submitForm);
+
+            // Event listener for Search Input (with debounce for better performance)
+            searchInput.addEventListener('input', function() {
+                // Clear the previous timeout
+                clearTimeout(searchTimeout);
+
+                // Set a new timeout (e.g., 300ms) before submitting
+                searchTimeout = setTimeout(() => {
+                    submitForm();
+                }, 300); 
+            });
+
+            // Prevent the default Enter key submission on the search box
+            form.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    clearTimeout(searchTimeout); // Ensure instant submission on Enter
+                    submitForm();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

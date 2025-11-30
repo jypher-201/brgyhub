@@ -9,10 +9,37 @@ use Illuminate\Http\Request;
 class AdminIssueController extends Controller
 {
     /**
-     * Display all issue submissions for admin.
+     * Display all issue submissions for admin, with real-time filtering capabilities.
      */
-    public function index() {
-        $issues = IssueReport::latest()->paginate(10); // 10 per page
+    public function index(Request $request)
+    {
+        // Start building the query with user relationship
+        $query = IssueReport::with('user');
+
+        // Filter by Category
+        if ($request->filled('category')) {
+            $query->where('category', $request->category);
+        }
+
+        // Filter by Status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Search by Title or Location (Real-time search uses these fields)
+        if ($request->filled('search')) {
+            $search = '%' . $request->search . '%';
+            $query->where(function ($q) use ($search) {
+                // Search in both the issue title and the reported location
+                $q->where('title', 'like', $search)
+                  ->orWhere('location', 'like', $search);
+            });
+        }
+
+        // Apply ordering and pagination
+        $issues = $query->latest()->paginate(10); // 10 per page
+        
+        // Pass the paginated results to the view
         return view('admin.issues.index', compact('issues'));
     }
 

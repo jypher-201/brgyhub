@@ -125,10 +125,19 @@
         }
         
         .suggestion-content {
-            max-width: 400px;
+            /* Reduced max-width slightly to accommodate the new Title column */
+            max-width: 300px; 
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+        }
+
+        /* NEW: Style for the Title column to ensure prominence */
+        .suggestion-title {
+            font-weight: 600;
+            color: var(--dark-text);
+            /* Ensure title wraps if necessary, unlike the content snippet */
+            white-space: normal;
         }
         
         .empty-state { 
@@ -166,7 +175,7 @@
                 overflow-x: auto; 
             }
             .suggestion-content {
-                max-width: 200px;
+                max-width: 150px; /* Adjust for smaller screens */
             }
         }
     </style>
@@ -191,7 +200,9 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Content</th>
+                        {{-- ADDED: New Title Column Header --}}
+                        <th>Title</th>
+                        <th>Content Snippet</th>
                         <th>Status</th>
                         <th>Admin Response</th>
                         <th>Submitted At</th>
@@ -199,11 +210,19 @@
                 </thead>
                 <tbody>
                     @forelse($suggestions as $suggestion)
-                    {{-- Added onclick event to navigate to the detail view --}}
                     <tr onclick="window.location='{{ route('resident.suggestions.show', $suggestion->id) }}'">
+                        
+                        {{-- ADDED: Title Column Data --}}
+                        <td>
+                            <div class="suggestion-title">
+                                {{ $suggestion->title ?? 'N/A' }}
+                            </div>
+                        </td>
+                        
+                        {{-- Content Column (Renamed header, kept logic) --}}
                         <td>
                             <div class="suggestion-content" title="{{ $suggestion->content }}">
-                                {{ $suggestion->content }}
+                                {{ \Illuminate\Support\Str::limit($suggestion->content, 50) }} 
                             </div>
                         </td>
                         <td>
@@ -219,9 +238,8 @@
                         <td>{{ $suggestion->created_at->format('M d, Y') }}</td>
                     </tr>
                     @empty
-                    {{-- Removed onclick for empty state row --}}
                     <tr style="cursor: default;">
-                        <td colspan="4" class="empty-state">
+                        <td colspan="5" class="empty-state">
                             No suggestions submitted yet
                         </td>
                     </tr>

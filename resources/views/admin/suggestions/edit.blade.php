@@ -133,6 +133,12 @@
         <div class="card p-4 mb-4 suggestion-card">
             <h5 class="section-title">Suggestion Details</h5>
 
+            {{-- ADDED: Title Field --}}
+            <div class="mb-3">
+                <label class="label-text">Suggestion Title</label>
+                <input type="text" class="form-control" value="{{ $suggestion->title ?? 'N/A' }}" disabled>
+            </div>
+            
             <div class="mb-3">
                 <label class="label-text">Suggestion Content</label>
                 <textarea class="form-control" rows="4" disabled>{{ $suggestion->content }}</textarea>
